@@ -1,4 +1,4 @@
-% $Id: read.FLIndices.Rd,v 1.2.2.1 2005/12/19 11:13:48 iagoazti Exp $
+% $Id: read.FLIndices.Rd,v 1.2.2.1.2.1 2007/02/16 16:10:36 ejardim Exp $
 \name{read.FLIndices}
 \alias{read.FLIndices}
 \alias{read.FLIndex}
@@ -18,6 +18,9 @@ read.FLIndices(file, file2, type="VPA", index.names, descs, methods="CPUE",
   \item{descs}{ Description for the various index datasets }
   \item{methods}{ Methods for the various index datasets. By default, "CPUE" for all series }
   \item{desc}{ A general desription for the FLIndices collection }
+}
+\section{WARNING}{
+We advice to check for indices names so that restricted characters or national characters are removed!
 }
 
 \value{

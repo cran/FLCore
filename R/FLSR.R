@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Dorleta García, AZTI Tecnalia
 # Additions:
-# Last Change: 19 nov 2006 18:22
-# $Id: FLSR.R,v 1.50.2.23 2007/01/16 17:28:48 imosqueira Exp $
+# Last Change: 31 ene 2007 15:20
+# $Id: FLSR.R,v 1.50.2.23.2.1 2007/04/25 11:30:50 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -933,7 +933,6 @@ if (!isGeneric("as.FLSR")) {
 	})
 }	# }}}
 
-
 ## as.FLSR::FLStock      {{{
 setMethod("as.FLSR", signature(object="FLStock"),
     function(object, rec.age = "missing", ...) {
@@ -1004,7 +1003,6 @@ setMethod("as.FLSR", signature(object="FLStock"),
    }
 ) # }}}
 
-
 ## as.FLSR::FLBiol     {{{
 setMethod("as.FLSR", signature(object="FLBiol"),
     function(object, rec.age = "missing", ...) {
@@ -1063,7 +1061,6 @@ setMethod("as.FLSR", signature(object="FLBiol"),
         return(sr)
    }
 ) # }}}
-
 
 # qapply    {{{
 setMethod('qapply', signature(X='FLSR', FUN='function'),

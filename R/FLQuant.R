@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Iago Mosqueira, AZTI Tecnalia
 # Additions:
-# Last Change: 30 ene 2007 10:29
-# $Id: FLQuant.R,v 1.52.2.53.2.3 2007/01/30 12:15:56 imosqueira Exp $
+# Last Change: 25 Apr 2007 13:26
+# $Id: FLQuant.R,v 1.52.2.53.2.6 2007/04/25 11:30:50 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -15,7 +15,7 @@ validFLQuant  <-  function(object){
 
 	# Make sure there are at least 5 dimensions in the array named
 	# *, "year", "unit", "season" and "area"
-	DimNames  <-  names(dimnames(object))
+	DimNames  <-  names(object)
 	if (length(DimNames) < 5)
 		return("the array must have at least 5 dimensions")
 	if (!all(DimNames[2:5] == c("year", "unit", "season", "area")))
@@ -143,6 +143,7 @@ setMethod("FLQuant", signature(object="vector"),
 # FLQuant <- FLQuant(array)
 setMethod("FLQuant", signature(object="array"),
 	function(object, dim=rep(1,5), dimnames="missing", quant=NULL, units="NA") {
+
 		# no dim or dimnames
 		if (missing(dim) && missing(dimnames)) {
 			# get dim from object and complete
@@ -155,8 +156,8 @@ setMethod("FLQuant", signature(object="array"),
 			else {
 				dimnames <- list(quant=1:dim[1], year=1:dim[2], unit=1:dim[3],
 					season=1:dim[4], area=1:dim[5])
-				dimnames[which(dim==1)] <- list(quant='all', year=1, unit='unique', season='all',
-					area='unique')[which(dim==1)]
+				dimnames[which(dim==1)] <- list(quant='all', year=1, unit='unique', 
+					season='all', area='unique')[which(dim==1)]
 			}
 		}
 
@@ -352,7 +353,7 @@ if (!isGeneric("quant")) {
 
 setMethod("quant", signature(object="FLQuant"),
 	function(object) {
-		return(names(dimnames(object))[1])
+		return(names(object)[1])
 	}
 ) # }}}
 
@@ -375,40 +376,31 @@ setMethod("quant<-", signature(object="FLQuant"),
 
 ## units        {{{
 if (!isGeneric("units")) {
-	setGeneric("units", function(object, ...){
-		value  <-  standardGeneric("units")
-		value
+	setGeneric("units", function(x){
+		standardGeneric("units")
 	})
 }
 
-setMethod("units", signature(object="FLQuant"),
-	function(object)
-		return(object@units)
+setMethod("units", signature(x="FLQuant"),
+	function(x)
+		return(x@units)
 ) # }}}
 
 ## units<-      {{{
 if (!isGeneric("units<-")) {
-	setGeneric("units<-", function(object, value){
-		value  <-  standardGeneric("units<-")
-		value
+	setGeneric("units<-", function(x, value){
+		standardGeneric("units<-")
 	})
 }
 
-setMethod("units<-", signature(object="FLQuant", value="character"),
-	function(object, value) {
-		if (!inherits(object, "FLQuant"))
-			return(object)
-		if (!is(value, "character"))
-			stop("'units' must be a character string")
-		object@units <- value
-		return(object)
+setMethod("units<-", signature(x="FLQuant", value="character"),
+	function(x, value) {
+		x@units <- value
+		return(x)
 	}
 ) # }}}
 
 ## names         {{{
-if (!isGeneric("names")) {
-	setGeneric("names", useAsDefault = names)
-}
 setMethod("names", signature(x="FLQuant"),
 	function(x) names(dimnames(x)))
 # }}}
@@ -468,15 +460,18 @@ is.FLQuant  <-  function(x)
 setMethod("show", signature(object="FLQuant"),
 	function(object){
 		cat("An object of class \"FLQuant\":\n\n")
-		print(unclass(object))
+		unclass(object)
 	}
 )   # }}}
 
 ## print 	{{{
+if (!isGeneric("print")) {
+	setGeneric("print", useAsDefault = print)
+}
 setMethod("print", signature(x="FLQuant"),
 	function(x){
 		cat("An object of class \"FLQuant\":\n\n")
-		print(unclass(x))
+		unclass(x)
 	}
 )   # }}}
 
@@ -580,7 +575,6 @@ setMethod("bwplot", signature("formula", "FLQuant"), function(x, data, ...){
 if (!isGeneric("dotplot")) {
 	setGeneric("dotplot", useAsDefault = dotplot)
 }
-
 
 setMethod("dotplot", signature("formula", "FLQuant"), function(x, data, ...){
 

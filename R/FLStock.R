@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Rob Scott, CEFAS
 # Additions:
-# Last Change: 29 ene 2007 23:10
-# $Id: FLStock.R,v 1.42.2.31.2.1 2007/01/30 12:15:56 imosqueira Exp $
+# Last Change: 10 Apr 2007 20:22
+# $Id: FLStock.R,v 1.42.2.31.2.5 2007/04/10 18:22:37 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -229,6 +229,7 @@ setMethod("computeCatch", signature(object="FLStock"),
 		}
         else {
 			res <- quantSums(catch.n(object) * catch.wt(object), na.rm=na.rm)
+                        units(res) <- paste(units(catch.n(object)), units(catch.wt(object)))
         }
 		return(res)
     }
@@ -286,9 +287,10 @@ setMethod("window", signature(x="FLStock"),
 		for (s. in names.) {
 			slot(x, s.) <- window(slot(x, s.), start=start, end=end,
 									   extend=extend, frequency=frequency)
-			x@range["minyear"] <- start
-			x@range["maxyear"] <- end
-		}
+    }
+		x@range["minyear"] <- start
+		x@range["maxyear"] <- end
+
 		return(x)
 	}
 )	# }}}
@@ -591,29 +593,23 @@ setMethod("trim", signature("FLStock"), function(object, ...){
 }) # }}}
 
 ## units(FLStock)	{{{
-if (!isGeneric("units")) {
-	setGeneric("units", function(object, ...){
-		value <- standardGeneric("units")
-		value
-	})
-}
-setMethod("units", signature(object="FLStock"), function(object, ...) {
+setMethod("units", signature(x="FLStock"), function(x) {
 	
-	names. <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
+	names. <- names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])
 	res <- list()
 	for(s. in names.)
-    res <- as.list(c(unlist(res), assign(s., units(slot(object, s.)))))
+    res <- as.list(c(unlist(res), assign(s., units(slot(x, s.)))))
   names(res) <- names.
   return(res)
 })  #}}}
 
 ## units<-(FLStock)  {{{
-setMethod("units<-", signature(object="FLStock", value="list"),
-    function(object, value) {
+setMethod("units<-", signature(x="FLStock", value="list"),
+    function(x, value) {
         for(i in seq(along=value))
             if(is.character(value[[i]]))
-                units(slot(object, names(value[i]))) <- value[[i]]
-        return(object)
+                units(slot(x, names(value[i]))) <- value[[i]]
+        return(x)
 	}
 ) # }}}
 

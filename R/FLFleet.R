@@ -4,7 +4,7 @@
 # Maintainer: Jan Jaap Poos, RIVO
 # Additions:
 # Last Change: 30 mar 2006 22:31
-# $Id: FLFleet.R,v 1.33.2.8 2006/04/26 16:08:52 ejardim Exp $
+# $Id: FLFleet.R,v 1.33.2.8.2.1 2007/03/29 18:40:53 janjaappoos Exp $
 # to do: in creator of FLCatch, make possibility to give ranges?
 
 # show for FLCatch should not show the quants that have all NA's in
@@ -89,20 +89,18 @@ setMethod("revenue", signature(object="FLFleet"),
 
 ## window    {{{
 setMethod("window", signature="FLFleet",
-	  function(x, start, end, extend=TRUE, frequency=1) {
-         FLF <- FLFleet()
-
-         #window slots existing of FLquant
-         s. <- list("vcost","fcost","crewshare","effort","capacity")
-         for (i. in s.) slot(FLF,i.) <-  window(slot(x, i.),start,end)
-
-         #window catches slot
-         for (i. in 1:length(slot(x,"catches"))) {
-            slot(FLF,"catches")[[i.]] <-  window(slot(x,"catches")[[i.]],start,end)
-         }
-         return(FLF)
+  function(x, start, end, extend=TRUE, frequency=1) {
+    for (s. in names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])) {
+      slot(x, s.) <- window(slot(x, s.), start=start, end=end, extend=extend, frequency=frequency)
     }
-)   # }}}
+    x@range["minyear"] <- start
+    x@range["maxyear"] <- end
+    #window catches slot
+    slot(x,"catches")<-lapply(slot(x,"catches"),window,start,end,extend,frequency)
+    
+    return(x)
+  }
+)    # }}}
 
 ## FLFleet()                {{{
 FLFleet <- function(name, desc, iniFLQuantFleet, iniFLQuantCatch,

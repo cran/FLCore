@@ -2,7 +2,7 @@
 
 # Author: FLR Team
 # Last Change: 19 oct 2006 13:20
-# $Id: io.FLIndices.R,v 1.12.2.11 2006/10/19 15:40:35 iagoazti Exp $
+# $Id: io.FLIndices.R,v 1.12.2.11.2.1 2007/02/16 14:53:34 ejardim Exp $
 
 # Reference:
 # Notes:
@@ -436,6 +436,10 @@ read.FLIndices <- function(file, file2, type="VPA", index.names, descs, methods=
 #        if (!missing(methods))
 #            res[[i]]@method <- methods[i]
     }
+    # naming the tuning series
+	nlst <- lapply(res, name)
+	names(res) <- unlist(nlst)
+
 	if(!validObject(res))
 		stop("Error: object is not valid")
     return(res)

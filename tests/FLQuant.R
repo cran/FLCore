@@ -2,8 +2,8 @@
 
 # Author: FLR Team
 # Additions:
-# Last Change: 04 nov 2006 15:38
-# $Id: FLQuant.R,v 1.10.2.6 2006/11/06 05:15:33 iagoazti Exp $
+# Last Change: 25 Apr 2007 12:27
+# $Id: FLQuant.R,v 1.10.2.6.2.1 2007/04/25 11:30:50 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -15,7 +15,8 @@ fla <- new("FLQuant")
 fla <- new("FLQuant", array(rnorm(10), dim=c(2,5,1,1,1), 
 	dimnames=list(age=1:2, year=1:5, unit='unique', season='all', area='unique')))
 fla <- new("FLQuant", array(rnorm(10), dim=c(2,5,1,1,1), 
-	dimnames=list(age=1:2, year=10:14, unit='unique', season='all', area='unique')), units='kg')
+	dimnames=list(age=1:2, year=10:14, unit='unique', season='all', area='unique')), 
+	units='kg')
 
 ## FLQuant
 # object="missing"

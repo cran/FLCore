@@ -4,7 +4,7 @@
 # Maintainer: Jan Jaap Poos, RIVO
 # Additions:
 # Last Change: 30 mar 2006 19:27
-# $Id: FLCatch.R,v 1.1.2.4 2006/04/26 16:08:52 ejardim Exp $
+# $Id: FLCatch.R,v 1.1.2.4.2.1 2007/03/29 18:43:04 janjaappoos Exp $
 
 # Reference:
 # Notes:
@@ -181,13 +181,15 @@ setMethod("computeCatch", signature(object="FLCatch"),
 
 # window::FLCatch   {{{
 setMethod("window", signature="FLCatch",
-	  function(x, start, end, extend=TRUE, frequency=1) {
-        s. <- list("catch.n","catch.wt","catch.sel","catch","landings.n","landings.wt",
-           "landings.sel","landings","discards.n","discards.wt","discards.sel","discards","catchability","price")
-         FLC <- FLCatch(name=slot(x, "name"),gear=slot(x, "gear"))
-         for (i. in s.) slot(FLC,i.) <-  window(slot(x, i.),start,end)
-         return(FLC)
+  function(x, start, end, extend=TRUE, frequency=1) {
+    for (s. in names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])) {
+      slot(x, s.) <- window(slot(x, s.), start=start, end=end, extend=extend, frequency=frequency)
     }
+    x@range["minyear"] <- start
+    x@range["maxyear"] <- end
+
+    return(x)
+  }
 )    # }}}
 
 ## summary::FLCatch             {{{
