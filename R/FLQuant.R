@@ -4,7 +4,7 @@
 # Maintainer: Iago Mosqueira, AZTI Tecnalia
 # Additions:
 # Last Change: 03 abr 2006 12:45
-# $Id: FLQuant.R,v 1.52.2.30 2006/04/06 18:57:36 iagoazti Exp $
+# $Id: FLQuant.R,v 1.52.2.33 2006/05/05 11:49:48 ejardim Exp $
 
 # Reference:
 # Notes:
@@ -653,7 +653,7 @@ function(x, data, bub.scale=2.5, ...){
     dots <- list(...)
     data <- as.data.frame(data)
     dots$data <- data
-    dots$cex <- bub.scale*(data$data/max(data$data, na.rm=T))
+    dots$cex <- bub.scale*(data$data/max(data$data, na.rm=T)+0.05)
     pfun <- function(x, y, ..., cex, subscripts){
         panel.xyplot(x, y, ..., cex = cex[subscripts])
         }
@@ -737,6 +737,8 @@ if (!isGeneric("as.data.frame")) {
 
 setMethod("as.data.frame", signature(x="FLQuant", row.names="missing", optional="missing"),
 	function(x, row.names, optional){
+		# to avoid warnings when NA have to added
+		options(warn=-1)
         if(any(is.na(suppressWarnings(as.numeric(dimnames(x)[[1]])))))
             quant <- as.factor(dimnames(x)[[1]])
         else
@@ -749,6 +751,7 @@ setMethod("as.data.frame", signature(x="FLQuant", row.names="missing", optional=
 			area=as.factor(dimnames(x)[[5]])),
 			data=as.vector(x))
 		names(df)[1] <- quant(x)
+		options(warn=0)
 		return(df)
 	}
 )   # }}}
@@ -925,3 +928,33 @@ seasonMeans <- function(x, na.rm=TRUE) {
 areaMeans <- function(x, na.rm=TRUE) {
 	return(apply(x, c(1:4), mean, na.rm=na.rm))
 }	# }}}
+
+### flq 2 formula
+setGeneric("tofrm", function(object, ...){
+	standardGeneric("tofrm")
+	}
+)
+
+setMethod("tofrm", signature("FLQuant"), function(object, by="quant", ...){
+
+	dn <- dimnames(object)
+	dm <- dim(object)
+	lst <- dn[dm>1]
+	dn <- names(lst)
+	if(identical(by,"quant")){
+		rform <- as.list(dn[-1])
+		rform$sep <- "*"
+		rform <- do.call("paste", rform)
+		rform <- paste(dn[1], rform, sep="|")
+	}
+	if(identical(by,"year")){
+		rform <- as.list(dn[-2])
+		rform$sep <- "*"
+		rform <- do.call("paste", rform)
+		rform <- paste(dn[2], rform, sep="|")
+	}
+	x <- paste("data", rform, sep="~")
+	as.formula(x)		
+})
+
+

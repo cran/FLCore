@@ -4,6 +4,7 @@
 \alias{FLIndices}
 \alias{summary,FLIndices-method}
 \alias{plot,FLIndices,missing-method}
+\alias{trim,FLIndices-method}
 
 \title{Class FLIndices}
 \description{
@@ -24,6 +25,7 @@ Class \code{"list"}.
 \section{Methods}{
   \describe{
     \item{summary}{\code{signature(object = "FLIndices")}: Outputs a summary of the content of the object.}
+    \item{trim}{\code{signature(object = "FLIndices")}: Applies the \code{trim} method to all slots.}
   }
 }
 \author{FLR Team}

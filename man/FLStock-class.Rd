@@ -1,4 +1,4 @@
-% $Id: FLStock-class.Rd,v 1.4.2.8 2006/04/08 08:38:45 iagoazti Exp $
+% $Id: FLStock-class.Rd,v 1.4.2.9 2006/04/26 16:08:52 ejardim Exp $
 \name{FLStock-class}
 \docType{class}
 \alias{FLStock}

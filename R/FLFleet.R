@@ -4,7 +4,7 @@
 # Maintainer: Jan Jaap Poos, RIVO
 # Additions:
 # Last Change: 30 mar 2006 22:31
-# $Id: FLFleet.R,v 1.33.2.7 2006/04/06 18:57:36 iagoazti Exp $
+# $Id: FLFleet.R,v 1.33.2.8 2006/04/26 16:08:52 ejardim Exp $
 # to do: in creator of FLCatch, make possibility to give ranges?
 
 # show for FLCatch should not show the quants that have all NA's in

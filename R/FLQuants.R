@@ -4,7 +4,7 @@
 # Maintainer: Iago Mosqueira, AZTI Tecnalia
 # Additions:
 # Last Change: 26 mar 2006 18:57
-# $Id: FLQuants.R,v 1.1.2.4 2006/04/13 10:19:50 ejardim Exp $
+# $Id: FLQuants.R,v 1.1.2.6 2006/05/05 09:00:51 ejardim Exp $
 
 # Reference:
 # Notes:
@@ -82,7 +82,7 @@ setMethod("xyplot", signature("formula", "FLQuants"), function(x, data, ...){
 	lnames <- names(data)
 	if(is.null(lnames)){
 		lnames <- paste("data", 1:length(data), sep="")
-		names(lst$data)[5+1:length(data)]	
+		names(lst$data)[5+1:length(data)] <- lnames	
 	}
 	lform <- strsplit(lnames, split=" ")
 	lform$sep <- "+"
@@ -91,5 +91,38 @@ setMethod("xyplot", signature("formula", "FLQuants"), function(x, data, ...){
 	x <- as.formula(paste(lform, deparse(rform), sep="~"))
 	lst$x <- x
 	do.call("xyplot", lst)
+
+})
+
+
+# tofrm
+setMethod("tofrm", signature("FLQuants"), function(object, by="quant", ...){
+
+	flqs <- mcf(object)
+	dn <- dimnames(flqs[[1]])
+	dm <- dim(flqs[[1]])
+	lst <- dn[dm>1]
+	dn <- names(lst)
+	if(identical(by,"quant")){
+		rform <- as.list(dn[-1])
+		rform$sep <- "*"
+		rform <- do.call("paste", rform)
+		rform <- paste(dn[1], rform, sep="|")
+	}
+	if(identical(by,"year")){
+		rform <- as.list(dn[-2])
+		rform$sep <- "*"
+		rform <- do.call("paste", rform)
+		rform <- paste(dn[2], rform, sep="|")
+	}
+	
+	lnames <- names(object)
+	if(is.null(lnames)) lnames <- paste("data", 1:length(object), sep="")
+	lform <- strsplit(lnames, split=" ")
+	lform$sep <- "+"
+	lform <- do.call("paste", lform)
+
+	x <- paste(lform, rform, sep="~")
+	as.formula(x)		
 
 })

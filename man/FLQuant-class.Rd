@@ -1,4 +1,4 @@
-% $Id: FLQuant-class.Rd,v 1.9.2.3 2006/03/28 07:19:58 iagoazti Exp $
+% $Id: FLQuant-class.Rd,v 1.9.2.4 2006/05/05 09:00:52 ejardim Exp $
 \name{FLQuant}
 \docType{class}
 \alias{FLQuant-class}
@@ -13,6 +13,7 @@
 \alias{dimnames<-,FLQuant-method}
 \alias{trim,FLQuant-method}
 \alias{catch,FLQuant-method}
+\alias{tofrm,FLQuant-method}
 \alias{discards,FLQuant-method}
 \alias{landings,FLQuant-method}
 %\alias{aggregate,FLQuant-method}
@@ -108,6 +109,8 @@ Object coercion:
     year is coerced to numeric. The quant dimension is coerced to either of them
     depending on its content. Numeric values (like ages) will be converted to numeric
     while text labels will convert to factor. \code{units} is added as an attribute.}
+    \item{tofrm:}{Returns a formula based on the FLQuant dimnames. There are to options by=("year","age"), the first returns something like \code{data~year|...}, the second \code{data~age|...}. This function is used for automatic plot development and should not be used for users ploting. This will be deprecated in the future when all users can use fully \code{xyplot} methods.}
+
    }
 }
 

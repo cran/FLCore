@@ -201,5 +201,6 @@ exportMethods(
 	"window",
 	"wt",
 	"wt<-",
-	"xyplot"
+	"xyplot",
+	"tofrm"
 )

@@ -1,35 +1,13 @@
 
-		CHANGES IN FLCore VERSION 1.2
+		CHANGES IN FLCore VERSION 1.3-1
 
 NEW FEATURES
 
-	o	New dimSums function to collapse an FLQuant along the 3rd to 5th dimension.
-    o   as.data.frame() now defined for FLQuants. Elements in the list must have
-        the same dimensions, and they can be bound either by row or column by using
-        row.names="col" (the default) or row.names="row".
+	o	new tofrm method to provide formulas based on FLQuant objects
+    o   new trim method for FLIndex objects
 
 USER-VISIBLE CHANGES
-
-    o   FLQuant
-        - FLQuant(FLQuant) now accepts for different dimnames to be specified. If
-        those extend the input object dimensions, output is an extended FLQuant with
-        NAs in the extended dimensions.
-	o	FLStock
-		- Added FLStock accesor functions
-		- catch(), landings() and discards() have been changed to computeCatch(),
-		  computeLandings() and computeDiscards().
-		- added ssbpurec method.
-    o   FLCatch
-        - Added FLCatch accesor functions.
-    o   FLFLeet
-
 BUG FIXES
-
-    o	FLIndex
-		- FLIndex() creator now works correctly for derived classes.
-    o	FLQuant
-		- bubbles plot fixed.
-
 UTILITIES
 DOCUMENTATION
 DEPRECATED & DEFUNCT

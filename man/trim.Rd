@@ -1,4 +1,4 @@
-% $Id: trim.Rd,v 1.2.2.1 2005/12/19 11:13:48 iagoazti Exp $
+% $Id: trim.Rd,v 1.2.2.2 2006/04/26 16:08:52 ejardim Exp $
 \docType{methods}
 \name{trim}
 \alias{trim}

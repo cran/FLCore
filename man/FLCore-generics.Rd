@@ -10,6 +10,7 @@
 \item{as.FLFleet}{function(x)}
 \item{as.FLIndex}{function(object, ...)}
 \item{trim}{function(object, ...)}
+\item{tofrm}{function(object, ...)}
 \item{add<-}{function(object,value)}
 \item{quant}{function(object, ...)}
 \item{quant<-}{function(object, value)}

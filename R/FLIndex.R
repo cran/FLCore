@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Richard Hillary, Imperial College London
 # Additions:
-# Last Change: 30 mar 2006 16:48
-# $Id: FLIndex.R,v 1.20.2.24 2006/04/06 18:57:36 iagoazti Exp $
+# Last Change: 04 may 2006 19:02
+# $Id: FLIndex.R,v 1.20.2.29 2006/05/04 17:01:38 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -345,3 +345,41 @@ setMethod("plot", signature(x="FLIndex",y="missing"),
     }
 )	# }}}
 
+## trim     {{{
+setMethod("trim", signature("FLIndex"), function(object, ...){
+
+	args <- list(...)
+
+    c1 <- args[[quant(object@index)]]
+	c2 <- args[["year"]]
+	c3 <- args[["unit"]]
+	c4 <- args[["season"]]
+	c5 <- args[["area"]]
+
+  # check if the criteria is not larger than the object
+	v <- c(length(c1), length(c2), length(c3), length(c4), length(c5))
+    if(any(v > dim(object@index)))
+        stop("\n  Your criteria are wider then the object dim. I don't know what to do !\n")
+
+    names. <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
+    for (name in names.) {
+        if (dim(slot(object,name))[1]==1 & dim(slot(object,name))[2] > 1 ) {
+            slot(object,name) <- trim(slot(object,name), year=c2, unit=c3, season=c4, area=c5 )
+        } else if (dim(slot(object,name))[1] > 1 ){
+            slot(object,name) <- trim(slot(object,name), age=c1, year=c2, unit=c3, season=c4, area=c5 )
+    }
+  }
+
+  if (length(c1)>0 ) {
+    object@range["min"] <- c1[1]
+    object@range["max"] <- c1[length(c1)]
+    object@range["plusgroup"] <- NA
+  }
+  if (length(c2)>0 ) {
+    object@range["minyear"] <- c2[1]
+    object@range["maxyear"] <- c2[length(c2)]
+  }
+
+	return(object)
+
+}) # }}}

@@ -4,7 +4,7 @@
 # Maintainer: Rob Scott, CEFAS
 # Additions:
 # Last Change: 26 mar 2006 18:15
-# $Id: FLStock.R,v 1.42.2.25 2006/03/28 07:19:58 iagoazti Exp $
+# $Id: FLStock.R,v 1.42.2.26 2006/04/26 16:08:52 ejardim Exp $
 
 # Reference:
 # Notes:

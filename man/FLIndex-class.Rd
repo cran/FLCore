@@ -30,6 +30,7 @@
 \alias{index.q<-,FLIndex,FLQuant-method}
 \alias{sel.pattern,FLIndex-method}
 \alias{sel.pattern<-,FLIndex,FLQuant-method}
+\alias{trim,FLIndex-method}
 
 \title{Class FLIndex}
 \description{A class designed to hold data and parameters related to abundance indices}
@@ -64,6 +65,7 @@ Objects can be created by calls of the form \code{new("FLIndex", ...)}, through 
     \item{summary}{\code{signature(object = "FLIndex")}: ... }
     \item{transform}{\code{signature(x = "FLIndex")}: ... }
     \item{window}{\code{signature(x = "FLIndex")}: ... }
+    \item{trim}{\code{signature(x = "FLIndex")}: ... }
   }
 }
 \author{FLR Team}
