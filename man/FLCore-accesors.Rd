@@ -1,0 +1,121 @@
+\name{FLCore-accesors}
+\alias{FLCore-accesors}
+\alias{name}
+\alias{name-methods}
+\alias{name<-}
+\alias{"name<-"-methods}
+\alias{desc}
+\alias{desc-methods}
+\alias{desc<-}
+\alias{"desc<-"-methods}
+\alias{distribution}
+\alias{distribution-methods}
+\alias{distribution<-}
+\alias{"distribution<-"-methods}
+\alias{index}
+\alias{index-methods}
+\alias{index<-}
+\alias{"index<-"-methods}
+\alias{index.var}
+\alias{index.var-methods}
+\alias{index.var<-}
+\alias{"index.var<-"-methods}
+\alias{n}
+\alias{n-methods}
+\alias{n<-}
+\alias{"n<-"-methods}
+\alias{m}
+\alias{m-methods}
+\alias{m<-}
+\alias{"m<-"-methods}
+\alias{wt}
+\alias{wt-methods}
+\alias{wt<-}
+\alias{"wt<-"-methods}
+\alias{fec}
+\alias{fec-methods}
+\alias{fec<-}
+\alias{"fec<-"-methods}
+\alias{spwn}
+\alias{spwn-methods}
+\alias{spwn<-}
+\alias{"spwn<-"-methods}
+\alias{model}
+\alias{model-methods}
+\alias{model<-}
+\alias{"model<-"-methods}
+\alias{ssb-methods}
+\alias{ssb<-}
+\alias{"ssb<-"-methods}
+\alias{rec}
+\alias{rec-methods}
+\alias{rec<-}
+\alias{"rec<-"-methods}
+\alias{rechat}
+\alias{rechat-methods}
+\alias{rechat<-}
+\alias{"rechat<-"-methods}
+\alias{residuals}
+\alias{residuals-methods}
+\alias{residuals<-}
+\alias{"residuals<-"-methods}
+\alias{params}
+\alias{params-methods}
+\alias{params<-}
+\alias{"params<-"-methods}
+\alias{se}
+\alias{se-methods}
+\alias{se<-}
+\alias{"se<-"-methods}
+\alias{covar}
+\alias{covar-methods}
+\alias{covar<-}
+\alias{"covar<-"-methods}
+\alias{varacorr}
+\alias{varacorr-methods}
+\alias{varacorr<-}
+\alias{"varacorr<-"-methods}
+\alias{aic}
+\alias{aic-methods}
+\alias{aic<-}
+\alias{"aic<-"-methods}
+\alias{mcmc}
+\alias{mcmc-methods}
+\alias{mcmc<-}
+\alias{"mcmc<-"-methods}
+\alias{catch.n}
+\alias{catch.n-methods}
+\alias{catch.wt}
+\alias{catch.wt-methods}
+\alias{effort}
+\alias{effort-methods}
+\alias{sel.pattern}
+\alias{sel.pattern-methods}
+\alias{index.q}
+\alias{index.q-methods}
+\title{Accesor and replacement methods for slots of complex objects}
+\description{
+}
+\usage{
+	name(object, ...)
+	name(object) <- value
+}
+\arguments{
+	\item{object}{The object whose slot is to be returned.}
+	\item{value}{The new value to be placed in that slot.}
+	\item{...}{Extra arguments.}
+}
+\details{
+}
+\value{
+	Accesor functions return the content of the selected slot, whic could be of various classes.
+}
+\seealso{
+	\code{\link{FLStock-class}}, \code{\link{FLBiol-class}}, \code{\link{FLIndex-class}},
+	\code{\link{FLFleet-class}},\code{\link{FLSR-class}}
+}
+\examples{
+	name(FLIndex(name="Test CPUE index"))
+}
+\author{FLR Team}
+\keyword{methods}
