@@ -1,8 +1,8 @@
 # io.FLIndex - 
 
 # Author: FLR Team
-# Last Change: 14 mar 2006 15:32
-# $Id: io.FLIndices.R,v 1.12.2.10 2006/04/19 15:59:24 ltkell Exp $
+# Last Change: 19 oct 2006 13:20
+# $Id: io.FLIndices.R,v 1.12.2.11 2006/10/19 15:40:35 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -330,7 +330,7 @@ readIndices.ICA.ssb <- function(file., sep="") {
       
       for (i in 1:stuff[1])
         {
-        indices[[i]]<-FLIndex(index=as.FLQuant(data[,2],dimnames=list(age="all",year=data[,1])),name=names[i],desc=title)
+        indices[[i]]<-FLIndex(index=as.FLQuant(data[,i+1],dimnames=list(age="all",year=data[,1])),name=names[i],desc=title)
         indices[[i]]@type<-"biomass"
         }
         

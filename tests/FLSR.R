@@ -3,7 +3,7 @@
 # Author: FLR Team
 # Additions:
 # Last Change: 09 Set 2005 10:24
-# $Id: FLSR.R,v 1.7.2.3 2006/03/27 12:39:04 dorleta Exp $
+# $Id: FLSR.R,v 1.7.2.4 2006/08/03 12:03:22 dorleta Exp $
 
 # Reference:
 # Notes:
@@ -14,20 +14,6 @@ data(ple4.biol)
 
 ## class
 fsr <- new("FLSR")
-validObject(fsr)
-
-## FLSR()
-fsr <- FLSR()
-fsr <- FLSR(ple4)
-fsr <- FLSR(ple4.biol)
-fsr <- FLSR(ple4, rec.age = 3)
-fsr <- FLSR(ple4, rec.age = 3, model = "qhstk", desc = "SR data obtained from ple4")
-fsr <- FLSR(ple4.biol, rec.age = 3)
-fsr <- FLSR(rec = ple4@stock.n[1,])
-fsr <- FLSR(rec = ple4@stock.n[1,], ssb = ssb(ple4))
-fsr <- FLSR(ssb = ssb(ple4))
-
-validObject(fsr)
 
 ## is.FLSR
 is.FLSR(fsr)
@@ -35,14 +21,23 @@ is.FLSR(fsr)
 ## validFLSR
 validObject(fsr)
 
+
+## FLSR()
+fsr <- FLSR()
+fsr <- FLSR(ssb = ssb(ple4))
+fsr <- FLSR(rec = ple4@stock.n[1,])
+fsr <- FLSR(rec = ple4@stock.n[1,], ssb = ssb(ple4))
+fsr <- FLSR(params = matrix(1,1,3))
+fsr <- FLSR(model = "segreg")
+
 ## sr()
-fsr <- FLSR(ple4, model="ricker")
+fsr <- as.FLSR(ple4, model="ricker")
 fs1 <- sr(fsr)
-fsr <- FLSR(ple4, model="bevholt")
+fsr <- as.FLSR(ple4, model="bevholt")
 fs2 <- sr(fsr)
-fsr <- FLSR(ple4, model="segreg")
+fsr <- as.FLSR(ple4, model="segreg")
 fs3 <- sr(fsr)
-fsr <- FLSR(ple4, model="qhstk")
+fsr <- as.FLSR(ple4, model="qhstk")
 fs4 <- sr(fsr)
 
 ## summary
@@ -74,3 +69,16 @@ lkhd <- srlkhd(fs1)
 lkhd <- srlkhd(fs2)
 lkhd <- srlkhd(fs3)
 lkhd <- srlkhd(fs4)
+
+## as.FLSR():: FLStock
+fsr <- as.FLSR(ple4)
+fsr <- as.FLSR(ple4, rec.age = 3)
+fsr <- as.FLSR(ple4, rec.age = 3, model = "qhstk", desc = "SR data obtained from ple4")
+fsr <- as.FLSR(ple4, params = matrix(c(1,2,NA),1,3))
+
+## as.FLSR():: FLBiol
+fsr <- as.FLSR(ple4.biol)
+fsr <- as.FLSR(ple4.biol, rec.age = 3)
+fsr <- as.FLSR(ple4.biol, rec.age = 3, model = "qhstk", desc = "SR data obtained from ple4")
+fsr <- as.FLSR(ple4.biol, params = matrix(c(1,2,NA),1,3))
+

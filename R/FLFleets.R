@@ -3,7 +3,7 @@
 # Author: Phillipe Grosjean, Laurence T. Kell.
 # Additions:
 # Last Change: 14 Dec 2005 23:18
-# $Id: FLFleets.R,v 1.8.2.3 2005/12/19 11:22:22 iagoazti Exp $
+# $Id: FLFleets.R,v 1.8.2.3.2.1 2007/01/27 18:57:04 ejardim Exp $
 
 # Reference:
 # Notes:
@@ -30,10 +30,12 @@ validFLFleets <- function(object){
 setClass("FLFleets",
 	representation(
 		"list",# Indeed, a list of FLFleet objects
-		desc ="character"),
+		desc ="character",
+		names="character"),
 	prototype=prototype(
 		list(),
-		desc =character(0)),
+		desc =character(0),
+		names=character(0)),
 	validity=validFLFleets
 )
 

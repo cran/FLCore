@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Richard Hillary, Imperial College London
 # Additions:
-# Last Change: 04 may 2006 19:02
-# $Id: FLIndex.R,v 1.20.2.29 2006/05/04 17:01:38 iagoazti Exp $
+# Last Change: 26 ene 2007 17:26
+# $Id: FLIndex.R,v 1.20.2.33.2.1 2007/01/30 12:15:56 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -74,16 +74,19 @@ setClass("FLIndex",
         distribution = character(0),
         index        = new("FLQuant"),
         index.var    = new("FLQuant"),
-		    catch.n      = new("FLQuant"),
-		    catch.wt     = new("FLQuant"),
-		    effort       = new("FLQuant"),
-		    sel.pattern  = new("FLQuant"),
-		    index.q      = new("FLQuant")),
+		catch.n      = new("FLQuant"),
+		catch.wt     = new("FLQuant"),
+		effort       = new("FLQuant"),
+		sel.pattern  = new("FLQuant"),
+		index.q      = new("FLQuant")),
     validity=validFLIndex
 )
 
 setValidity("FLIndex", validFLIndex)
-remove(validFLIndex)    #   }}}
+remove(validFLIndex)
+
+## Accesors
+invisible(createFLAccesors(new("FLIndex"), exclude='range')) #   }}}
 
 ## FLIndex()    {{{
 FLIndex <- function(name=character(0), desc=character(0), distribution=character(0),
@@ -176,12 +179,7 @@ setMethod("dims", signature(obj="FLIndex"),
 setMethod("window", signature(x="FLIndex"),
       function(x, start, end, extend=TRUE, frequency=1) {
 
-        names <- names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])
-        
-        for (s in names) {
-            slot(x, s) <- window(slot(x, s), start=start, end=end,
-                extend=extend, frequency=frequency)
-        }
+		x <- qapply(x, window, start=start, end=end, extend=extend, frequency=frequency)
         x@range["minyear"] <- start
         x@range["maxyear"] <- end
         return(x)
@@ -192,7 +190,7 @@ setMethod("window", signature(x="FLIndex"),
 setMethod("apply", signature(X="FLIndex", MARGIN="list", FUN="function"),
     function(X, MARGIN, FUN, ...) {
     
-        for(i in 1:seq(along=MARGIN)) {
+        for(i in seq(along=MARGIN)) {
             slot(X, MARGIN[[i]]) <- apply(slot(X, MARGIN[[i]]), 1:5, FUN, ...)
         }
         return(X)
@@ -205,7 +203,7 @@ setMethod("transform", signature(`_data`="FLIndex"),
 
         args <- list(...)
 
-        for (i in 1:seq(along=args)) {
+        for (i in seq(along=args)) {
             slot(`_data`, names(args)[i]) <- args[[i]]
         }
         return(`_data`)
@@ -297,9 +295,6 @@ setMethod("as.FLIndex", signature(object="FLFleet"),
     }
 )   # }}}
 
-## Accesors
-invisible(createFLAccesors(new("FLIndex"), exclude='range'))
-
 ## plot::FLIndex	{{{
 setMethod("plot", signature(x="FLIndex",y="missing"),
     function(x, type=c("splom"), ...) {
@@ -383,3 +378,29 @@ setMethod("trim", signature("FLIndex"), function(object, ...){
 	return(object)
 
 }) # }}}
+
+## computeCatch (added by EJ)   {{{
+setMethod(computeCatch, signature("FLIndex"), function(object){
+	catch <- object@catch.n*object@catch.wt
+	catch <- quantSums(catch)
+	catch
+})  # }}}
+
+# qapply    {{{
+setMethod('qapply', signature(X='FLIndex', FUN='function'),
+	function(X, FUN, ...) {
+		FUN <- match.fun(FUN)
+		slots <- names(getSlots(class(X))[getSlots(class(X))=='FLQuant'])
+		if(is.FLQuant(do.call(FUN, list(slot(X,slots[1]), ...)))) {
+			res <- X
+			for (i in slots)
+				slot(res, i) <- do.call(FUN, list(slot(X,i), ...))
+		}
+		else {
+			res  <- vector('list', 0)
+			for (i in slots)
+				res[[i]] <- do.call(FUN, list(slot(X,i), ...))
+		}
+		return(res)
+	}
+)   # }}}

@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Richard Hillary, Imperial College London
 # Additions:
-# Last Change: 23 jun 2006 17:24
-# $Id: FLIndices.R,v 1.3.2.9 2006/07/13 10:13:35 iagoazti Exp $
+# Last Change: 11 ene 2007 14:51
+# $Id: FLIndices.R,v 1.3.2.11.2.1 2007/01/27 18:57:04 ejardim Exp $
 
 # Reference:
 # Notes:
@@ -28,10 +28,12 @@ validFLIndices <- function(object){
 setClass("FLIndices", 
     representation(
     "list",# Indeed, a list of FLIndex objects
-        desc ="character"),
+        desc ="character",
+        names="character"),
     prototype=prototype(
 		list(),
-		desc =character(0)),
+		desc =character(0),
+		names=character(0)),
 	validity=validFLIndices
 )
 
@@ -132,5 +134,20 @@ setMethod("[", signature(x="FLIndices"),
         res <- new('FLIndices', x@.Data[i])
         names(res) <- names(x)[i]
    		return(res)
+	}
+)   # }}}
+
+# lapply    {{{
+if (!isGeneric("lapply")) {
+	setGeneric("lapply", useAsDefault = lapply)
+}
+setMethod('lapply', signature(X='FLIndices', FUN='function'),
+	function(X, FUN, ...) {
+		FUN <- match.fun(FUN)
+		rval <- .Internal(lapply(X, FUN))
+		if(is.FLIndex(rval[[1]]))
+			rval <- FLIndices(rval)
+		names(rval) <- names(X)
+		return(rval)
 	}
 )   # }}}

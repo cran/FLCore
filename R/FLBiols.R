@@ -24,10 +24,12 @@ validFLBiols <- function(object){
 setClass("FLBiols",
 	representation(
 		"list",# Indeed, a list of FLBiol objects
-		desc ="character"),
+		desc ="character",
+		names="character"),
 	prototype=prototype(
 		list(),
-		desc =character(0)),
+		desc =character(0),
+		names=character(0)),
 	validity=validFLBiols
 )
 

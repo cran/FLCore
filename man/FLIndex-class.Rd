@@ -7,6 +7,7 @@
 \alias{FLIndexSurvey}
 \alias{FLIndexAcoustic}
 \alias{apply,FLIndex,list,function-method}
+\alias{qapply,FLIndex,function-method}
 \alias{plot,FLIndex,missing-method}
 \alias{summary,FLIndex-method}
 \alias{transform,FLIndex-method}
@@ -14,6 +15,8 @@
 \alias{name<-,FLIndex,character-method}
 \alias{desc,FLIndex-method}
 \alias{desc<-,FLIndex,character-method}
+\alias{type,FLIndex-method}
+\alias{type<-,FLIndex,character-method}
 \alias{distribution,FLIndex-method}
 \alias{distribution<-,FLIndex,character-method}
 \alias{index,FLIndex-method}
@@ -49,6 +52,7 @@ Objects can be created by calls of the form \code{new("FLIndex", ...)}, through 
 	\describe{
     	\item{\code{name}:}{The name of the index or fleet}
 	    \item{\code{desc}:}{Description of the index}
+	    \item{\code{type}:}{Type of abundance index as a character string}
     	\item{\code{range}:}{Year and age range, and specified plus group age. A vector of length 5.}
 	    \item{\code{distribution}:}{A character string for the probability density function assumed
 			for the error estructure}
@@ -59,7 +63,8 @@ Objects can be created by calls of the form \code{new("FLIndex", ...)}, through 
 }
 \section{Methods}{
   \describe{
-    \item{apply}{\code{signature(X = "FLIndex", MARGIN = "list", FUN = "function")}: ... }
+    \item{qapply}{\code{signature(X = "FLSR", FUN = "function")}: Apply a function to all
+	FLQuant slots in an object}
     \item{dims}{\code{signature(obj = "FLIndex")}: ... }
     \item{plot}{\code{signature(x = "FLIndex", y = "missing")}: ... }
     \item{summary}{\code{signature(object = "FLIndex")}: ... }

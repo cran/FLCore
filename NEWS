@@ -1,7 +1,9 @@
 
-		CHANGES IN FLCore VERSION 1.3-3
+		CHANGES IN FLCore VERSION 1.4
 
 NEW FEATURES
+	o	new computeCatch method for FLIndex
+	o	new bkey method to build keys for bubble plots.
 	o	new tofrm method to provide formulas based on FLQuant objects.
     o   new trim method for FLIndex objects.
     o   the square bracket operator '[' has been overloaded for FLIndices and 
@@ -12,11 +14,27 @@ NEW FEATURES
         - New method to create FLQuants objects where all FLQuant objects dimensions are the 
           same. 
     o   new method data.list("list")
-        - Creates a data.frame with the FLQuant objects rbinded. 
+        - Creates a data.frame from an FLQuants with the FLQuant objects rbinded. 
+    o   the square bracket operators '[' and '[<-' are now available for FLStock. Value given
+        in the second case must be of class FLStock too.
+	o	lapply defined for FLIndex and FLIndices	o	lapply defined for FLIndex and FLIndices
 
 USER-VISIBLE CHANGES
+    o   summary for FLQuant now returns information about the distribution of values in
+	o type and type<- are now defined for FLIndex
+        the data, instead of being a replicate of dimnames().
+	o	A print() method for FLQuant has been added to match show()
 
 BUG FIXES
+    o   data.list was giving warning when "age" was numeric, now it coerces all into character 
+    o   calls to seq() in transform and apply methods for FLIndex have been corrected
+    o   Indices of type ICA were not correctly loaded if more than one index was present
+        in the file
+	o   bubbles(FLQuants) was not ploting correctly, fixed now.
+    o   as.FLQuant(data.frame) would fail if the input object was missing a column. Missing
+        columns (dimensions) are now filled up with the standard values.
+    o   The FLQuant method now respects dimnames of input 2D arrays
+
 UTILITIES
 DOCUMENTATION
 DEPRECATED & DEFUNCT

@@ -93,6 +93,10 @@
 \alias{"effort<-"-methods}
 \alias{sel.pattern}
 \alias{sel.pattern-methods}
+\alias{type}
+\alias{type-methods}
+\alias{type<-}
+\alias{"type<-"-methods}
 \alias{index.q}
 \alias{index.q-methods}
 \alias{catch}

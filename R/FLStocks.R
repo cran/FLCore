@@ -4,7 +4,7 @@
 # Maintainer: Rob Scott, CEFAS
 # Additions:
 # Last Change: 26 mar 2006 18:18
-# $Id: FLStocks.R,v 1.5.2.2 2006/03/28 07:19:58 iagoazti Exp $
+# $Id: FLStocks.R,v 1.5.2.2.2.1 2007/01/27 18:57:04 ejardim Exp $
 
 # Reference:
 # Notes:
@@ -25,10 +25,12 @@ validFLStocks <- function(object){
 setClass("FLStocks",
 	representation(
 		"list",# Indeed, a list of FLStock objects
-		desc ="character"),
+		desc ="character",
+		names="character"),
 	prototype=prototype(
 		list(),
-		desc =character(0)),
+		desc =character(0),
+		names=character(0)),
 	validity=validFLStocks
 )
 

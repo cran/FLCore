@@ -5,6 +5,9 @@
 \alias{bubbles,FLQuant-method}
 \alias{bubbles,FLQuants-method}
 \alias{bubbles,formula,FLQuant-method}
+\alias{bkey}
+\alias{bkey-methods}
+\alias{bkey,list-method}
 \title{Lattice style bubble plots}
 \description{
 Use this method to do plots with circles proportional to the mean of the data.
@@ -20,6 +23,9 @@ Use this method to do plots with circles proportional to the mean of the data.
 \describe{
 	\item{signature("formula", "FLQuant", ...)}{
 	 The formula must make use of the FLQuant object dimnames. There's an extra argument \code{bub.scale} that will be multiplied be the \code{pch.cex} argument, so increasing the contrast among the circles.    
+	}
+	\item{signature("formula", "FLQuants", ...)}{
+	 The formula must make use of the FLQuant object dimnames. There's an extra argument \code{bub.scale} that will be multiplied be the \code{pch.cex} argument, so increasing the contrast among the circles. This method plots bubbles of different color for negative and positive values, controled by the argument \code{bub.col} which is a character vector with 2 values. The legend is drawn by the method \code{bkey}. Try getMethod("bkey") to look at it.   
 	}
 }}
 \seealso{

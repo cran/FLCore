@@ -3,26 +3,34 @@
 # Author: FLR Team, Ernesto Jardim
 # Maintainer: Iago Mosqueira, AZTI Tecnalia
 # Additions:
-# Last Change: 12 jul 2006 20:12
-# $Id: FLQuants.R,v 1.1.2.9 2006/07/13 10:13:35 iagoazti Exp $
+# Last Change: 30 ene 2007 08:59
+# $Id: FLQuants.R,v 1.1.2.17.2.6 2007/01/31 14:31:20 ejardim Exp $
 
 # Reference:
 # Notes:
 
 ## FLQuants     {{{
 
-setClass("FLQuants", contains="list")
-
+setClass("FLQuants", contains="list", representation(
+	names="character"))
 # }}}
 
 ## FLQuants()   {{{
-
+# TODO: review creator. what happens with names? show with names
 FLQuants <- function(...) {
+
 	args <- list(...)
-	if(length(args)==1 & is.list(args[[1]])) lst <- args[[1]]
-	if(length(args)>1) lst <- args
+	if(length(args)==1 & is.list(args[[1]])) {
+        lst <- args[[1]]
+		names(lst) <- names(args[[1]])
+	}
+	if(length(args)==1 & is.FLQuant(args[[1]]))
+        lst <- args[1]
+	if(length(args)>1)
+        lst <- args
 	lst0 <- lapply(lst, is.FLQuant)
-	if(!identical(length(lst0),sum(unlist(lst0)))) stop("All elements must be \"FLQuant\" objects.\n")
+	if(!identical(length(lst0), sum(unlist(lst0))))
+		stop("All elements must be \"FLQuant\" objects.\n")
 	new("FLQuants", lst)
 } # }}}
 
@@ -65,15 +73,15 @@ setMethod("as.data.frame", signature(x="FLQuants", row.names="ANY", optional="mi
     }
 )	# }}}
 
-# summary
+# summary   {{{
 setMethod("summary", signature("FLQuants"), function(object){
 
 	df0 <- as.data.frame(object)
 	lst <- split(df0[,c(6,7)], df0[,3:5])
 	lapply(lst, function(x) apply(x,2,summary))
-})
+})  # }}}
 
-# xyplot
+# xyplot    {{{
 setMethod("xyplot", signature("formula", "FLQuants"), function(x, data, ...){
 
 	lst <- substitute(list(...))
@@ -92,10 +100,9 @@ setMethod("xyplot", signature("formula", "FLQuants"), function(x, data, ...){
 	lst$x <- x
 	do.call("xyplot", lst)
 
-})
+})  # }}}
 
-
-# tofrm
+# tofrm  {{{
 setMethod("tofrm", signature("FLQuants"), function(object, by="quant", ...){
 
 	flqs <- mcf(object)
@@ -125,8 +132,7 @@ setMethod("tofrm", signature("FLQuants"), function(object, by="quant", ...){
 	x <- paste(lform, rform, sep="~")
 	as.formula(x)		
 
-})
-
+})  # }}}
 
 ## "["             {{{
 setMethod("[", signature(x="FLQuants"),
@@ -140,7 +146,7 @@ setMethod("[", signature(x="FLQuants"),
 	}
 )   # }}}
 
-# make compatible flquants
+# mcf: make compatible flquants     {{{
 setGeneric("mcf", function(object, ...){
 	standardGeneric("mcf")
 	}
@@ -188,17 +194,14 @@ setMethod("mcf", signature("list"), function(object){
 	
 	# output
 	FLQuants(lst)	
-})
+})  # }}}
 
-# data frame with list of values (good for xyplot)
-
+# data.list: data frame with list of values (good for xyplot) {{{
 setGeneric("data.list", function(object, ...){
 	standardGeneric("data.list")
 	}
 )
-
 setMethod("data.list", signature("list"), function(object, ...){
-
 	# names 
 	if(!is.null(names(object))){
 		flqnames <- names(object)
@@ -208,61 +211,118 @@ setMethod("data.list", signature("list"), function(object, ...){
 
 	# data.frames
 	flqs.lst <- lapply(object, as.data.frame)
+	flqs.lst <- lapply(flqs.lst, function(x){x[,1] <- as.character(x[,1]); x})
 	flqs.nlst <- lapply(flqs.lst, nrow)
 	flqs.df <- do.call("rbind", flqs.lst)
 	flqs.df$qname <- rep(flqnames, unlist(flqs.nlst))
 	flqs.df
 
-})
+})  # }}}
 
-# bubbles
+# bkey   {{{
+setGeneric("bkey", function(object, ...){
+	standardGeneric("bkey")
+	}
+)
 
-# bubbles
-setMethod("bubbles", signature(x="formula", data ="FLQuants"), function(x, data, bub.scale=2.5, bub.col=gray(c(0.1, 0.9)), ...){
+setMethod("bkey", signature("list"), function(object, ...){
 
+	# test
+	if(sum(names(object) %in% c("data", "cex", "bub.col", "bub.scale"))!=4){
+		stop("The list passed to bkey must have components \"data\", \"cex\", \"bub.col\" and \"bub.scale\"","\n")
+	}
+
+	# get info
 	dots <- list(...)
-	data <- data.list(data)
-	# def col to plot negative values
-	col <- as.numeric(data$data>=0)
-	coln <- vector(mode="character", length=length(col))
-	# color for negs
-	coln[col==0] <- bub.col[1]
-	# color for pos
-	coln[col==1] <- bub.col[2]
-	coln[coln==""] <- NA
-	dots$col <- coln
+	data <- object$data
+	adata <- abs(data)
+	cex <- object$cex
+	bub.col <- object$bub.col	
+	bub.scale <- object$bub.scale
+	
+	# vectors with cex, col, pch and text
+	v <- ceiling(max(adata, na.rm=T))
+	ktext <- format(round(seq(-v,v,l=9),2))
+	v <- ceiling(max(cex, na.rm=T))
+	kcex <- abs(seq(-v,v,l=9))+bub.scale*0.1
+	kcol <- rep(bub.col,c(4,5))
+	kpch <- rep(c(1,19),c(4,5))
+	
+	# the key
+	akey <- simpleKey(text=ktext[9:1], points=T, lines=F, columns=1, space="right")
+	akey$points$col=kcol[9:1]
+	akey$points$pch=kpch[9:1]
+	akey$points$cex=kcex
+	akey$text$cex=0.8
+
+	# merging with other arguments	
+	lst0 <- dots[names(dots) %in% names(akey)]
+	lst1 <- dots[!(names(dots) %in% names(akey))]
+	akey[match(names(lst0),names(akey),nomatch=0)] <- lst0
+	akey <- c(akey,lst1)
+
+	# output	
+	akey
+})  # }}}
+
+# bubbles   {{{
+setMethod("bubbles", signature(x="formula", data ="FLQuants"), function(x, data, bub.scale=2.5, bub.col=gray(c(0.1, 0.1)), ...){
 
 	# data
-	data$data <- abs(data$data)
-	dots$data <- data
+	dots <- list(...)
+	dots$data <- data.list(data)
+
+	# def col & pch to plot negative values
+	col <- as.numeric(dots$data$data>=0)
+	coln <- vector(mode="character", length=length(col))
+	pchn <- vector(mode="integer", length=length(col))
+
+	# for negs
+	coln[col==0] <- bub.col[1]
+	pchn[col==0] <- 1
+
+	# for pos
+	coln[col==1] <- bub.col[2]
+	pchn[col==1] <- 19
+
+	# for NA
+	coln[coln==""] <- NA
+	pchn[coln==""] <- NA
 	
-	# bubles size to be setted by panel.function
-	dots$cex <- data$data
-	dots$cex <- bub.scale*dots$cex/max(dots$cex, na.rm=TRUE)+0.1*(dots$cex+1)
+	# rescale cex to make it prety (I hope)
+	cex0 <- abs(dots$data$data)
+	cex <- bub.scale*cex0/max(cex0, na.rm=TRUE)
 
-	# panel.function
-	dots$panel <- function(x,y,..., cex, subscripts){
-
-		dots <- list(...)
-		dots$pch=19
-		call.list <- dots
-		call.list$x <- x
-		call.list$y <- y
-		call.list$cex = cex[subscripts]
-
-		ans <- do.call("panel.xyplot", call.list)
-		ans
-
-		call.list$col <- 1
-		call.list$pch <- 1
-		ans <- do.call("panel.xyplot", call.list)
-		ans
-
+	# panel
+	pfun <- function(x,y,subscripts,...){
+		panel.xyplot(x,y,col=coln[subscripts], pch=pchn[subscripts], cex=cex[subscripts]+bub.scale*0.1)
 	}
-	# call.list
+
+	# legend
+
+	akey <- bkey(list(data=dots$data$data, cex=cex, bub.col=bub.col, bub.scale=bub.scale), border=F, title="Scale", cex.title=0.8, padding.text=4)
+	
+	# call list
+	dots$cex <- cex
+	dots$pch <- pchn
+	dots$col <- coln
+	dots$panel <- pfun
+	dots$key <- akey
 	call.list <- c(x = x, dots)
+
 	# plot
 	ans <- do.call("xyplot", call.list)
 	ans
 
-})
+})  # }}}
+
+# show  {{{
+setMethod('show', signature('FLQuants'),
+        function(object) {
+                for (n in seq(1:length(object))) {
+                        cat(paste('$', names(object)[n], '\n'))
+                        show(object[[n]])
+                        cat('\n')
+                }
+        }
+)   # }}}

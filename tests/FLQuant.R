@@ -2,8 +2,8 @@
 
 # Author: FLR Team
 # Additions:
-# Last Change: 28 Out 2005 21:04
-# $Id: FLQuant.R,v 1.10.2.4 2005/12/19 11:23:49 iagoazti Exp $
+# Last Change: 04 nov 2006 15:38
+# $Id: FLQuant.R,v 1.10.2.6 2006/11/06 05:15:33 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -72,6 +72,10 @@ dfs <- rbind(df[1,], df)
 fla <- as.FLQuant(dfs, units='kg')
 fla <- as.FLQuant(data.frame(age=c(1:5,1:5),year=c(rep(1980,5),rep(1981,5)),
     unit='unique', season='unique', area='all', data=abs(rnorm(10))), units='pence')
+fla <- as.FLQuant(data.frame(age=c(1:5,1:5),year=c(rep(1980,5),rep(1981,5)),
+    unit='unique', data=abs(rnorm(10))), units='pence')
+fla <- as.FLQuant(data.frame(age=c(1:5,1:5),year=c(rep(1980,5),rep(1982,5)),
+    unit='unique', data=abs(rnorm(10))), units='pence')
 # numeric
 fla <- as.FLQuant(seq(78,88), dimnames=list(age=1, year=1:11, unit='unique',
     season='unique', area='all'), units='kg')

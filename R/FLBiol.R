@@ -2,8 +2,8 @@
 # Author: FLR Team
 # Maintainer: Laurie Kell, CEFAS
 # Additions:
-# Last Change: 26 mar 2006 18:15
-# $Id: FLBiol.R,v 1.14.2.9 2006/04/26 16:08:52 ejardim Exp $
+# Last Change: 19 oct 2006 15:54
+# $Id: FLBiol.R,v 1.14.2.10 2006/10/19 15:40:35 iagoazti Exp $
 # Reference:
 # Notes:
 # TODO Lun 07 Mar 2005 12:10:37 GMT iagoazti:
@@ -126,7 +126,7 @@ setMethod("summary", signature(object="FLBiol"),
 		cat("Description:", object@desc, "\n")
 		cat("Range:\tmin\tmax\tp+group\tminyear\tmaxyear\n")
 		cat("", object@range, "\n", sep="\t")
-		cat("Quant:", quant(object@catch), "\n\n")
+		cat("Quant:", quant(object@n), "\n\n")
 		
 		for (s in names(getSlots("FLBiol")[getSlots("FLBiol")=="FLQuant"])) {
 				 if (sum(!complete.cases(slot(object, s))) == length(slot(object,s)))

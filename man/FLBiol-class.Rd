@@ -2,6 +2,7 @@
 \docType{class}
 \alias{FLBiol-class}
 \alias{FLBiol}
+\alias{as.FLSR,FLBiol-method}
 \alias{apply,FLBiol,list,function-method}
 \alias{setunits,FLBiol-method}
 \alias{summary,FLBiol-method}
@@ -41,6 +42,7 @@ Objects can be created by calls of the form \code{new("FLBiol", ...)}.
 \section{Methods}{
   \describe{
     \item{as.FLBiol}{\code{signature(object = "FLBiol")}: Why should you code a \code{as} function for a class that you want to coerce to ?}
+    \item{as.FLSR}{\code{signature(object = "FLBiol")}: Creates a 'FLSR' object from a  'FLBiol' object.}
     \item{is.FLBiol}{\code{signature(object = "FLBiol")}: Check if an object is of class \code{FLBiol}.}
     \item{apply}{\code{signature(FLBiol,list,function)}: Usual apply function.}
     \item{plot}{\code{signature(FLBiol,list,function)}: Usual plot function.}

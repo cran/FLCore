@@ -2,8 +2,8 @@
 
 # Author: Iago Mosqueira & Dorleta García, AZTI Fundazioa
 # Additions:
-# Last Change: 22 mar 2006 16:08
-# $Id: FLStock.R,v 1.6.2.7 2006/03/22 16:37:58 iagoazti Exp $
+# Last Change: 30 oct 2006 23:36
+# $Id: FLStock.R,v 1.6.2.8 2006/11/01 09:21:36 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -142,3 +142,11 @@ fls2 <- transform(fls, catch.n = fls@catch.n/1000, stock.n = fls@catch.n*1000)
 # apply.
 fls2 <- apply(fls, 2:5, mean)
 fls2 <- apply(fls, 2:5, sum)
+
+# '['
+fls <- FLStock(stock.n=FLQuant(dim=c(5,10,2,1,1)))
+fls <- fls[,1:3,1,,]
+
+# '[<-'
+fls <- FLStock(stock.n=FLQuant(dim=c(5,10,2,1,1)))
+fls[,,1,,] <- fls[,,2,,]

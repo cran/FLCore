@@ -6,6 +6,7 @@
 \alias{computeLandings-methods}
 \alias{computeDiscards-methods}
 \alias{computeCatch,FLStock-method}
+\alias{computeCatch,FLIndex-method}
 \alias{computeLandings,FLStock-method}
 \alias{computeDiscards,FLStock-method}
 \title{Methods for estimating aggregated catch time series from dissagregated data}

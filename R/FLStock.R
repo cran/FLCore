@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Rob Scott, CEFAS
 # Additions:
-# Last Change: 12 jul 2006 14:15
-# $Id: FLStock.R,v 1.42.2.29 2006/07/13 10:13:35 iagoazti Exp $
+# Last Change: 29 ene 2007 23:10
+# $Id: FLStock.R,v 1.42.2.31.2.1 2007/01/30 12:15:56 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -52,7 +52,7 @@ validFLStock <- function(object) {
 	# For catch, landings and stock, first dim (age/length) is always 'all'
 	dim[1] <- 1
 	
-	s  <- list("catch", "landings", "discards")
+	s  <- list("catch", "landings", "discards", "stock")
 
 	for (i in s) {
 		if (is.FLQuant(slot(object, i)) & !all(dim(slot(object, i)) == dim))
@@ -692,3 +692,114 @@ setMethod("ssbpurec",signature(object="FLStock"),
 		return(rho)
 	}
 )# }}}
+
+# '['       {{{
+setMethod('[', signature(x='FLStock'),
+	function(x, i, j, k, l, m, ..., drop=FALSE) {
+
+		if (missing(i))
+			i  <-  seq(1, length(dimnames(x@stock.n@.Data)[1][[1]]))
+		if (missing(j))
+			j  <-  dimnames(x@stock.n@.Data)[2][[1]]
+   		if (missing(k))
+   			k  <-  dimnames(x@stock.n@.Data)[3][[1]]
+		if (missing(l))
+			l  <-  dimnames(x@stock.n@.Data)[4][[1]]
+		if (missing(m))
+			m  <-  dimnames(x@stock.n@.Data)[5][[1]]
+
+	    quants <- list("catch.n", "catch.wt", "discards.n", "discards.wt", "landings.n",
+		    "landings.wt", "stock.n", "stock.wt", "m", "mat", "harvest", "harvest.spwn",
+    		"m.spwn")
+        for(q in quants)
+            slot(x, q) <- slot(x, q)[i,j,k,l,m, drop=FALSE]
+
+	    quants <- list("catch", "landings", "discards", "stock")
+        for(q in quants)
+            slot(x, q) <- slot(x, q)[1,j,k,l,m, drop=FALSE]
+        
+        # range
+        x@range['min'] <- dims(slot(x, 'stock.n'))$min
+        x@range['max'] <- dims(slot(x, 'stock.n'))$max
+        x@range['minyear'] <- dims(slot(x, 'stock.n'))$minyear
+        x@range['maxyear'] <- dims(slot(x, 'stock.n'))$maxyear
+
+        return(x)
+    }
+)   # }}}
+
+## "[<-"            {{{
+setMethod("[<-", signature(x="FLStock"),
+	function(x, i, j, k, l, m, ..., value="missing") {
+
+        if(!is.FLStock(value))
+            stop('Value must be of class FLStock')
+
+		if (missing(i))
+			i  <-  dimnames(x@stock.n)[1][[1]]
+		if (missing(j))
+			j  <-  dimnames(x@stock.n)[2][[1]]
+   		if (missing(k))
+   			k  <-  dimnames(x@stock.n)[3][[1]]
+		if (missing(l))
+			l  <-  dimnames(x@stock.n)[4][[1]]
+		if (missing(m))
+			m  <-  dimnames(x@stock.n)[5][[1]]
+
+	    quants <- list("catch.n", "catch.wt", "discards.n", "discards.wt", "landings.n",
+		    "landings.wt", "stock.n", "stock.wt", "m", "mat", "harvest", "harvest.spwn",
+    		"m.spwn")
+        for(q in quants)
+            slot(x, q)[i,j,k,l,m] <- slot(value, q)
+	    
+        quants <- list("catch", "landings", "discards", "stock")
+        for(q in quants) {
+            browser()
+            slot(x, q)[1,j,k,l,m] <- slot(value,q)
+            }
+
+   		return(x)
+	}
+)   # }}}
+
+# qapply    {{{
+if (!isGeneric("qapply")) {
+	setGeneric("qapply", function(X, FUN, ...){
+		standardGeneric("qapply")
+	})
+}
+setMethod('qapply', signature(X='FLStock', FUN='function'),
+	function(X, FUN, ...) {
+		FUN <- match.fun(FUN)
+		slots <- names(getSlots(class(X))[getSlots(class(X))=='FLQuant'])
+		if(is.FLQuant(do.call(FUN, list(slot(X,slots[1]), ...)))) {
+			res <- X
+			for (i in slots)
+				slot(res, i) <- do.call(FUN, list(slot(X,i), ...))
+		}
+		else {
+			res  <- vector('list', 0)
+			for (i in slots)
+				res[[i]] <- do.call(FUN, list(slot(X,i), ...))
+		}
+		return(res)
+	}
+)   # }}}
+
+# as.data.frame		{{{
+setMethod("as.data.frame", signature(x="FLStock"),
+ 	function(x, row.names="missing", optional="missing") {
+
+ 		slots <- names(getSlots(class(x))[getSlots(class(x))=='FLQuant'])
+ 		df <- cbind(as.data.frame(slot(x, slots[2])), slot=slots[2])
+ 		for (i in slots[-2])
+ 			df <- rbind(df, cbind(as.data.frame(slot(x, i)), slot=i))
+ 		# store metadata as attributes
+ 		attributes(df)$objectname <- x@name
+ 		attributes(df)$desc <- x@desc
+ 		attributes(df)$range <- x@range
+ 		attributes(df)$units <- unlist(units(x))
+
+ 		return(df)
+ 	}
+)	# }}}

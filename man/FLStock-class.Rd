@@ -1,18 +1,23 @@
-% $Id: FLStock-class.Rd,v 1.4.2.9 2006/04/26 16:08:52 ejardim Exp $
+% $Id: FLStock-class.Rd,v 1.4.2.12.2.1 2007/01/30 12:15:56 imosqueira Exp $
 \name{FLStock-class}
 \docType{class}
 \alias{FLStock}
 \alias{FLStock-class}
 \alias{plot,FLStock,missing-method}
 %\alias{project,FLStock,FLSTF.control-method}
+\alias{as.FLSR,FLStock-method}
 \alias{trim,FLStock-method}
 \alias{summary,FLStock-method}
+\alias{[,FLStock-method}
+\alias{[<-,FLStock-method}
 \alias{update,FLStock-method}
 \alias{catch,FLStock-method}
 \alias{landings,FLStock-method}
 \alias{discards,FLStock-method}
 \alias{units,FLStock,list-method}
 \alias{transform,FLStock-method}
+\alias{as.data.frame,FLStock,ANY,ANY-method}
+\alias{qapply,FLStock,function-method}
 \alias{ssb,FLStock-method}
 \alias{name,FLStock-method}
 \alias{desc,FLStock-method}
@@ -135,10 +140,15 @@
 	returns an object of class FLQuant.} 
 	\item{setunits}{\code{signature(obj = "FLStock")}: Sets the units of all FLQuant slots in an
 	FLStock object.}
-	\item{transform}{\code{signature(`_data` = "FLStock")}: Alters the content of individual slots in
-	a FLStock object. Only the data is altered, not dimnames.}
+	\item{transform}{\code{signature(`_data` = "FLStock")}: Alters the content of individual
+		slots in a FLStock object. Only the data is altered, not dimnames.}
+	\item{as.data.frame}{\code{signature(x = "FLStock")}: Creates a data.frame object storing all information present in an FLStock one. A column named \code{slot} contains the name of the slot. See \code{\link{as.data.frame}}}
+	\item{qapply}{\code{signature(object = "FLStock")}: Applies a function to all FLQuant slots in the object. If the result of the function is of class FLQuant, an FLStock object with the altered slots is returned. Otherwise a list with elements named after each slot is obtained.}
+    \item{\link{[}:}{To extract specific dimensions from the object.}
+    \item{\link{[<-}:}{Values of selected dimensions of an object can be directly modified with this method.}
     \item{as.FLStock}{\code{signature(obj = "FLStock")}: Outputs a new FLStock using the input specified as base with the options changed as specified.}
-	\item{apply}{\code{signature(obj = "FLStock", "list", "function")}: Usual apply function.}
+    \item{as.FLSR}{\code{signature(obj = "FLStock")}: Returns a 'FLSR' object created from a 'FLStock' object.}
+    \item{apply}{\code{signature(obj = "FLStock", "list", "function")}: Usual apply function.}
 	\item{harvest<-}{\code{signature(obj = "FLStock", "character")}: Changes the units of the harvest FLQuant slot.}	 
   }
 }

@@ -6,6 +6,7 @@
 \alias{plot,FLIndices,missing-method}
 \alias{trim,FLIndices-method}
 \alias{[,FLIndices-method}
+\alias{lapply,FLIndices,function-method}
 
 \title{Class FLIndices}
 \description{
@@ -28,6 +29,7 @@ Class \code{"list"}.
     \item{summary}{\code{signature(object = "FLIndices")}: Outputs a summary of the content of the object.}
     \item{trim}{\code{signature(object = "FLIndices")}: Applies the \code{trim} method to all slots.}
     \item{[}{\code{signature(x = "FLIndices")}: Subsets an FLIndices object.}
+    \item{lapply}{\code{signature(X = "FLIndices", FUN = "function")}: ... }
   }
 }
 \author{FLR Team}

@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Dorleta García, AZTI Tecnalia
 # Additions:
-# Last Change: 28 mar 2006 09:20
-# $Id: FLSR.R,v 1.50.2.20 2006/03/28 07:19:58 iagoazti Exp $
+# Last Change: 19 nov 2006 18:22
+# $Id: FLSR.R,v 1.50.2.23 2007/01/16 17:28:48 imosqueira Exp $
 
 # Reference:
 # Notes:
@@ -31,10 +31,10 @@ setClass("FLSR",
 		name     = character(0),
 		desc     = character(0),
 		model    = "NULL",
-		ssb      = new("FLQuant"), 
-		rec      = new("FLQuant"),
-		rechat   = new("FLQuant"),
-		residuals= new("FLQuant"),
+		ssb      = FLQuant(),
+		rec      = FLQuant(),
+		rechat   = FLQuant(),
+		residuals= FLQuant(),
 		params   = matrix(NA, ncol=3, dimnames=list("", c('alpha','beta','rho'))),
         se       = unlist(list(alpha=as.double(NA), beta=as.double(NA), rho=as.double(NA))),
         covar    = matrix(rep(NA, 9), nrow=3, ncol=3, 
@@ -66,7 +66,7 @@ validFLSR <- function(object) {
 	## FLQuant objects that must have same dimensions
 	dim <- dim(object@rec)
 
-	s <- list("rec", "ssb", "rechat", "residuals")
+	s <- c("rec", "ssb", "rechat", "residuals")
 	
     for (i in s) 
         if (!all(dim(slot(object, i)) == dim))
@@ -77,52 +77,46 @@ validFLSR <- function(object) {
 
 
 ## FLSR()                   {{{
-FLSR <- function(rec="missing", ssb="missing", rec.age="missing", ...) {
 
-    if(missing(rec.age) && (is.FLStock(rec) || is.FLBiol(rec))) 
-        rec.age <- dims(m(rec))$min
-    
-    # rec = FLQuant
-    if (is.FLQuant(rec) && missing(ssb)) {
-        
-        sr <- new("FLSR")
+FLSR <- function(name=character(0), desc=character(0), model = character(0),
+    quant='quant', ...){
 
-        slot(sr, "ssb") <- FLQuant(dimnames = dimnames(rec))
-        slot(sr, "rec") <- FLQuant(dimnames = dimnames(rec))
-        slot(sr, "rechat") <- FLQuant(dimnames = dimnames(rec))
-        slot(sr, "residuals") <- FLQuant(dimnames = dimnames(rec))
-    }
+	args <- list(...)
 
-    # rec = FLQuant & ssb = FLQuant
-    else if (is.FLQuant(rec) && is.FLQuant(ssb)) {
+	if(length(args) == 0)
+		args <- list(rec = FLQuant())
 
-            sr <- new("FLSR")
+	# Set FLQuant dimensions
+    if(is.null(dimnames(args[[which(lapply(args, is.FLQuant)==TRUE)[1]]])))
+        dimnames <- dimnames(FLQuant())
+    else
+        dimnames <- dimnames(args[[which(lapply(args, is.FLQuant)==TRUE)[1]]])
 
-            slot(sr, "ssb") <- ssb
-            slot(sr, "rec") <- rec
-            slot(sr, "rechat") <- FLQuant(dimnames = dimnames(rec))
-            slot(sr, "residuals") <- FLQuant(dimnames = dimnames(rec))
-        }
+	# template FLQuants
+	if (missing(quant))
+		quant <- names(dimnames)[1]
+	iniFLQ <- FLQuant(dimnames=dimnames, quant=quant)
+	agrFLQ <- FLQuant(dimnames=c(quant='all', dimnames(iniFLQ)[-1]), quant=quant)
 
-        # rec = FLStock
-        else if (is.FLStock(rec)) 
-                sr <- FLSRstock (rec, rec.age = rec.age) 
-             else if (is.FLBiol(rec))
-                sr <- FLSRbiol(rec, rec.age)
+	dims <- dims(iniFLQ)
 
-                  else 
-                    sr <- new("FLSR")
-                  
-    
-    # add other specified slots
-    args <- list(...)
-    if(length(args) > 0) {
-        for (i in 1:length(args)) {
-            try(slot(sr, names(args)[i]) <- args[[i]], silent=TRUE)
-        }
-    }
-    return(sr)
-} # }}}
+	res <- new("FLSR",
+		name		= name,
+		desc		= desc,
+		model       = model,
+        ssb         = iniFLQ,
+	    rec	        = iniFLQ,
+		rechat	    = iniFLQ,
+		residuals   = iniFLQ)
+
+	# Load given slots
+	for(i in names(args))
+			slot(res, i) <- args[[i]]
+
+    validObject(res)
+	return(res)
+}	# }}}
+
 
 ## is.FLSR()                  {{{
 is.FLSR <- function(x) {
@@ -931,118 +925,161 @@ setMethod("var<-", signature(object="FLSR", value="numeric"),
 # automatic accesors, excluding var and range
 invisible(createFLAccesors(new("FLSR"), exclude=c('range', 'var'))) # }}}
 
+## as.FLStock	{{{
+if (!isGeneric("as.FLSR")) {
+	setGeneric("as.FLSR", function(object, ...){
+		value <- standardGeneric("as.FLSR")
+		value
+	})
+}	# }}}
 
-FLSRstock <- function(object, rec.age){
 
-    validObject(object)
+## as.FLSR::FLStock      {{{
+setMethod("as.FLSR", signature(object="FLStock"),
+    function(object, rec.age = "missing", ...) {
 
-    # recruitment delay set using minage
-    # from the FLStock object
-    if(missing(rec.age))
-        rec.age <- dims(stock.n(object))$min 
-    else{ 
-        if(rec.age < dims(stock.n(object))$min)
-            stop("Supplied recruitment age less than minimum age class")
-    }
-			     
-    if (all(is.na(slot(object, "stock.n"))) || all(is.na(slot(object, "stock.wt"))) ||
-        all(is.na(slot(object, "mat"))) || all(is.na(slot(object, "harvest.spwn"))) || 
-	    all(is.na(slot(object, "m.spwn"))) || all(is.na(slot(object, "harvest"))) || 
-	    all(is.na(slot(object, "m")))) 
-        stop("stock must have 'stock.n', 'stock.wt', 'harvest', 'harvest.spwn', 
-            'm', 'm.spwn' and 'mat'")
+        # Check if valid fleet
+        validObject(object)
 
-    # calculate ssb and create FLSR object incorprating rec.age
-        
-    rec <- dimSums(object@stock.n[as.character(rec.age),])
-	    
-   	if(units(slot(object,"harvest")) != 'f' && units(slot(object,"harvest")) != 'hr')
+        # recruitment delay set using minage
+        # from the FLStock object
+        if(missing(rec.age))
+            rec.age <- dims(stock.n(object))$min
+        else{
+            if(rec.age < dims(stock.n(object))$min)
+                stop("Supplied recruitment age less than minimum age class")
+        }
+
+        if (all(is.na(slot(object, "stock.n"))) || all(is.na(slot(object, "stock.wt"))) ||
+            all(is.na(slot(object, "mat"))) || all(is.na(slot(object, "harvest.spwn"))) ||
+            all(is.na(slot(object, "m.spwn"))) || all(is.na(slot(object, "harvest"))) ||
+            all(is.na(slot(object, "m"))))
+                stop("stock must have 'stock.n', 'stock.wt', 'harvest', 'harvest.spwn',
+                    'm', 'm.spwn' and 'mat'")
+
+        args <- list(...)
+        slots <- names(args)[ifelse(length(which(names(args) == "rec.age"))>0,-which(names(args) == "rec.age"), 1:length(args))]
+
+        # calculate ssb and create FLSR object incorprating rec.age
+
+        rec <- dimSums(object@stock.n[as.character(rec.age),])
+
+   	    if(units(slot(object,"harvest")) != 'f' && units(slot(object,"harvest")) != 'hr')
             stop("Incorrect units specified in harvest slot of FLStock object")
-        
-    if(units(slot(object, "harvest")) == 'f')
-        ssb <- apply(slot(object, "stock.n") * exp(-harvest(object, "f") *
+
+        if(units(slot(object, "harvest")) == 'f')
+            ssb <- apply(slot(object, "stock.n") * exp(-harvest(object, "f") *
                 slot(object,"harvest.spwn") - slot(object, "m")*
                 slot(object, "m.spwn"))*slot(object, "stock.wt")*slot(object, "mat"), 2:5, sum)
-    else    # harvest units == 'hr' 
-		ssb <- apply(slot(object, "stock.n") * (1 - slot(object, "harvest") * slot(object, "harvest.spwn")) *
-            exp(-slot(object, "m") * slot(object, "m.spwn")) * slot(object, "mat") * slot(object, "stock.wt"), 2:5, sum)	
+        else    # harvest units == 'hr'
+            ssb <- apply(slot(object, "stock.n") * (1 - slot(object, "harvest") * slot(object, "harvest.spwn")) *
+            exp(-slot(object, "m") * slot(object, "m.spwn")) * slot(object, "mat") * slot(object, "stock.wt"), 2:5, sum)
 
-    # now alter the stock and recruitment 
-    # vectors to factor in the recruitement age
-	
-    if((dim(rec)[2]-1) <= rec.age)
-        stop("FLStock recruitment data set too short")
-		
-    rec <- rec[,(1+rec.age):dim(rec)[2],,,]
-    ssb <- ssb[,1:(dim(ssb)[2] - rec.age),,,]
+        # now alter the stock and recruitment
+        # vectors to factor in the recruitement age
 
-	# create the FLSR object
+        if((dim(rec)[2]-1) <= rec.age)
+            stop("FLStock recruitment data set too short")
 
-	sr <- new("FLSR", rec = rec,ssb = ssb) 
+        rec <- rec[,(1+rec.age):dim(rec)[2],,,]
+        ssb <- ssb[,1:(dim(ssb)[2] - rec.age),,,]
+
+        # create the FLSR object
+
+        sr <- new("FLSR", rec = rec,ssb = ssb, name = object@name,
+            desc = "'rec' and 'ssb' slots obtained from a 'FLStock' object")
+
+        slot(sr, "rechat") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
+        slot(sr, "residuals") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
+            
+        units(slot(sr, "rec")) <- units(slot(object, "stock.n"))
+	    units(slot(sr, "ssb")) <- units(slot(object, "stock.wt"))
+        units(slot(sr, "rechat")) <- units(slot(sr, "rec"))
+
+        for(s in slots)
+            slot(sr, s) <- args[[s]]
+
+        validObject(sr)
+        return(sr)
+   }
+) # }}}
+
+
+## as.FLSR::FLBiol     {{{
+setMethod("as.FLSR", signature(object="FLBiol"),
+    function(object, rec.age = "missing", ...) {
     
-    units(slot(sr, "rec")) <- units(slot(object, "stock.n"))
-	units(slot(sr, "ssb")) <- units(slot(object, "stock.wt")) 
+        validObject(object)
 
-#    slot(sr, "rechat") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
-    units(slot(sr, "rechat")) <- units(slot(sr, "rec"))
-        
-#    slot(sr, "residuals") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
-#    slot(sr, "name") <- name
-#    slot(sr, "desc") <- desc
-#    slot(sr, "model") <- model
-    
-    return(sr)
+        # recruitment delay set using minage
+        # from the FLStock object
+        if(missing(rec.age))
+            rec.age <- dims(n(object))$min
+        else{
+            if(rec.age < dims(n(object))$min)
+                stop("Supplied recruitment age less than minimum age class")
+        }
 
-}
+        if (all(is.na(slot(object, "n"))) || all(is.na(slot(object, "wt"))) ||
+            all(is.na(slot(object, "fec"))) || all(is.na(slot(object, "spwn"))))
+            stop("biol must have 'n', 'wt', 'm', 'fec' and 'spwn'")
 
-FLSRbiol <- function(object, rec.age){
+        args <- list(...)
+        slots <- names(args)[ifelse(length(which(names(args) == "rec.age"))>0,-which(names(args) == "rec.age"), 1:length(args))]
 
-    validObject(object)
+        # calculate ssb and create FLSR object incorprating rec.age
 
-    # recruitment delay set using minage
-    # from the FLStock object
-    if(missing(rec.age))
-        rec.age <- dims(n(object))$min 
-    else{ 
-        if(rec.age < dims(n(object))$min)
-            stop("Supplied recruitment age less than minimum age class")
-    }
-			     
-    if (all(is.na(slot(object, "n"))) || all(is.na(slot(object, "wt"))) ||
-        all(is.na(slot(object, "fec"))) || all(is.na(slot(object, "spwn"))))
-         
-        stop("biol must have 'n', 'wt', 'm', 'fec' and 'spwn'")
+        rec <- dimSums(object@n[as.character(rec.age),])
 
-    # calculate ssb and create FLSR object incorprating rec.age
-        
-    rec <- dimSums(object@n[as.character(rec.age),])
-	            
-    ssb <- apply(slot(object, "n") * exp(- slot(object, "m")*slot(object, "spwn"))*
-        slot(object, "wt")*slot(object, "fec"), 2:5, sum)
-   
-    # now alter the stock and recruitment 
-    # vectors to factor in the recruitement age
-	
-    if((dim(rec)[2]-1) <= rec.age)
-        stop("FLBiol recruitment data set too short")
-		
-    rec <- rec[,(1+rec.age):dim(rec)[2],,,]
-    ssb <- ssb[,1:(dim(ssb)[2] - rec.age),,,]
+        ssb <- apply(slot(object, "n") * exp(- slot(object, "m")*slot(object, "spwn"))*
+            slot(object, "wt")*slot(object, "fec"), 2:5, sum)
 
-	# create the FLSR object
+        # now alter the stock and recruitment
+        # vectors to factor in the recruitement age
 
-	sr <- new("FLSR", rec = rec,ssb = ssb) 
-    
-    units(slot(sr, "rec")) <- units(slot(object, "n"))
-	units(slot(sr, "ssb")) <- units(slot(object, "wt")) 
+        if((dim(rec)[2]-1) <= rec.age)
+            stop("FLBiol recruitment data set too short")
 
-#    slot(sr, "rechat") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
-    units(slot(sr, "rechat")) <- units(slot(sr, "rec"))
-        
-    slot(sr, "residuals") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
-#    slot(sr, "name") <- name
-#    slot(sr, "desc") <- desc
-#    slot(sr, "model") <- model
-    
-    return(sr)
-}
+        rec <- rec[,(1+rec.age):dim(rec)[2],,,]
+        ssb <- ssb[,1:(dim(ssb)[2] - rec.age),,,]
+
+        # create the FLSR object
+
+        sr <- new("FLSR", rec = rec,ssb = ssb, name = object@name,
+            desc = "'rec' and 'ssb' slots obtained from a 'FLBiol' object")
+
+
+        slot(sr, "rechat") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
+        slot(sr, "residuals") <- FLQuant(dimnames = dimnames(slot(sr, "rec")))
+
+        units(slot(sr, "rec")) <- units(slot(object, "n"))
+	    units(slot(sr, "ssb")) <- units(slot(object, "wt"))
+        units(slot(sr, "rechat")) <- units(slot(sr, "rec"))
+
+        for(s in slots)
+            slot(sr, s) <- args[[s]]
+
+        validObject(sr)
+        return(sr)
+   }
+) # }}}
+
+
+# qapply    {{{
+setMethod('qapply', signature(X='FLSR', FUN='function'),
+	function(X, FUN, ...) {
+		FUN <- match.fun(FUN)
+		slots <- names(getSlots(class(X))[getSlots(class(X))=='FLQuant'])
+		if(is.FLQuant(do.call(FUN, list(slot(X,slots[1]), ...)))) {
+			res <- X
+			for (i in slots)
+				slot(res, i) <- do.call(FUN, list(slot(X,i), ...))
+		}
+		else {
+			res  <- vector('list', 0)
+			for (i in slots)
+				res[[i]] <- do.call(FUN, list(slot(X,i), ...))
+		}
+		return(res)
+	}
+)   # }}}

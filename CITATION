@@ -1,0 +1,16 @@
+citHeader("To cite FLCore or FLR in a publication use:")
+
+citEntry(entry="Article",
+  title = "FLR: an open-source framework for the evaluation and development of
+  	management strategies",
+  author = personList(L. T. Kell, I. Mosqueira, P. Grosjean, J-M. Fromentin, D. Garcia,
+  	R. Hillary, E. Jardim, S. Mardle, M. Pastoors, J. J. Poos, F. Scott,
+	and R. D. Scott),
+        journal = "ICES J. of Mar. Sci.",
+        year = "2007",
+        volume = "64",
+        pages = "000-000",
+        textVersion = "Kell L.T., Mosqueira I., Grosjean P., Fromentin J-M., Garcia D.,
+		Hillary R., Jardim E., Pastoors M., Poos J.J., Scott F. & Scott R.D. 2007.
+		ICES J. of Mar. Sci. 20: 289-290.")
+citFooter("")
