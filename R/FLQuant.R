@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Iago Mosqueira, AZTI Tecnalia
 # Additions:
-# Last Change: 03 abr 2006 12:45
-# $Id: FLQuant.R,v 1.52.2.33 2006/05/05 11:49:48 ejardim Exp $
+# Last Change: 12 jul 2006 14:10
+# $Id: FLQuant.R,v 1.52.2.35 2006/07/13 10:13:35 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -729,14 +729,11 @@ setMethod("[<-", signature(x="FLQuant"),
 
 ## as.data.frame        {{{
 if (!isGeneric("as.data.frame")) {
-	setGeneric("as.data.frame", function(x, row.names="missing", optional="missing"){
-		value <- standardGeneric("as.data.frame")
-		value
-	})
+	setGeneric("as.data.frame", useAsDefault = as.data.frame)
 }
 
-setMethod("as.data.frame", signature(x="FLQuant", row.names="missing", optional="missing"),
-	function(x, row.names, optional){
+setMethod("as.data.frame", signature(x="FLQuant"),
+	function(x, row.names="missing", optional="missing"){
 		# to avoid warnings when NA have to added
 		options(warn=-1)
         if(any(is.na(suppressWarnings(as.numeric(dimnames(x)[[1]])))))
@@ -769,7 +766,6 @@ setMethod("apply", signature(X="FLQuant"),
 	function(X, MARGIN, FUN, ...){
 
 		data <- apply(X@.Data, MARGIN, FUN, ...)
-
 		# set dim
 		dim <- c(1,1,1,1,1)
 		if (is.null(dim(data)))
@@ -929,7 +925,7 @@ areaMeans <- function(x, na.rm=TRUE) {
 	return(apply(x, c(1:4), mean, na.rm=na.rm))
 }	# }}}
 
-### flq 2 formula
+## flq 2 formula  {{{
 setGeneric("tofrm", function(object, ...){
 	standardGeneric("tofrm")
 	}
@@ -955,6 +951,4 @@ setMethod("tofrm", signature("FLQuant"), function(object, by="quant", ...){
 	}
 	x <- paste("data", rform, sep="~")
 	as.formula(x)		
-})
-
-
+}) # }}}

@@ -5,6 +5,8 @@
 \alias{as.data.frame,FLQuants,ANY,missing-method}
 \alias{summary,FLQuants-method}
 \alias{tofrm,FLQuants-method}
+\alias{[,FLQuants-method}
+\alias{bubbles,formula,FLQuants-method}
 \title{Class "FLQuants"}
 \description{
 This class encapsulates a list of \code{"FLQuant"} objects.}
@@ -28,12 +30,12 @@ Class \code{"list"}, directly.
 Inherits from \code{"list"}.
 
 \describe{
-	\item{xyplot:}{
-		Lattice method to plot several FLQuants it works by adding datasets on the right side of the formula, so plotting them over each other.
-	}
+	\item{xyplot:}{Lattice method to plot several FLQuants it works by adding datasets on the right side of the formula, so plotting them over each other.}
+	\item{bubbles:}{Lattice bubble plot method. Works over several FLQuants by plotting them over each other.}
     \item{as.data.frame}{Coerces \code{"FLQuants"} into \code{"data.frame"}.}
     \item{summary}{Summarized information on the object.}
     \item{tofrm:}{Returns a formula based on the FLQuants dimnames. There are to options by=("year","age"), the first returns something like \code{data~year|...}, the second \code{data~age|...}. This function is used for automatic plot development and should not be used for users ploting. This will be deprecated in the future when all users can use fully \code{xyplot} methods.}
+    \item{[}{\code{signature(x = "FLQuants")}: Subsets an FLQuants object.}
 
 }
 }

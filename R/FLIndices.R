@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Richard Hillary, Imperial College London
 # Additions:
-# Last Change: 04 may 2006 18:18
-# $Id: FLIndices.R,v 1.3.2.8 2006/05/04 16:18:13 iagoazti Exp $
+# Last Change: 23 jun 2006 17:24
+# $Id: FLIndices.R,v 1.3.2.9 2006/07/13 10:13:35 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -123,3 +123,14 @@ setMethod("trim", signature("FLIndices"), function(object, ...){
     }
 )   # }}}
 
+## "["             {{{
+setMethod("[", signature(x="FLIndices"),
+	function(x, i="missing", j="missing",..., drop="missing") {
+
+		if (missing(i))
+			i  <-  seq(1, length(x))
+        res <- new('FLIndices', x@.Data[i])
+        names(res) <- names(x)[i]
+   		return(res)
+	}
+)   # }}}

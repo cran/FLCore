@@ -1,12 +1,21 @@
 
-		CHANGES IN FLCore VERSION 1.3-1
+		CHANGES IN FLCore VERSION 1.3-3
 
 NEW FEATURES
-
-	o	new tofrm method to provide formulas based on FLQuant objects
-    o   new trim method for FLIndex objects
+	o	new tofrm method to provide formulas based on FLQuant objects.
+    o   new trim method for FLIndex objects.
+    o   the square bracket operator '[' has been overloaded for FLIndices and 
+        FLQuants. An object of the same class is now returned.
+    o   bubbles("FLQuants")
+        - Lattice-based plot of negative and positive values with different colors. 
+    o   mcf("list")
+        - New method to create FLQuants objects where all FLQuant objects dimensions are the 
+          same. 
+    o   new method data.list("list")
+        - Creates a data.frame with the FLQuant objects rbinded. 
 
 USER-VISIBLE CHANGES
+
 BUG FIXES
 UTILITIES
 DOCUMENTATION

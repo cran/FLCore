@@ -3,8 +3,8 @@
 # Author: FLR Team
 # Maintainer: Rob Scott, CEFAS
 # Additions:
-# Last Change: 26 mar 2006 18:15
-# $Id: FLStock.R,v 1.42.2.26 2006/04/26 16:08:52 ejardim Exp $
+# Last Change: 12 jul 2006 14:15
+# $Id: FLStock.R,v 1.42.2.29 2006/07/13 10:13:35 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -449,7 +449,10 @@ setMethod("transform", signature(`_data`="FLStock"),
 		for (i in 1:length(args)) {
 			slot(`_data`, names(args)[i]) <- args[[i]]
 		}
-		return(`_data`)
+		if(validObject(`_data`))
+    		return(`_data`)
+        else
+            stop('Modified slots invalidate object')
 	}
 )	# }}}
 
@@ -466,7 +469,7 @@ setMethod("apply", signature(X="FLStock", MARGIN="vector", FUN="function"),
 
     # weighted averages by stock.n or catch.n
     wt <- "stock.n"
-    if(is.na(slot(X,"stock.n")))
+    if(all(is.na(slot(X,"stock.n"))))
       wt <- "catch.n"
     
     for(s. in names.avg)
@@ -547,44 +550,33 @@ setMethod("catch<-", signature(object="FLStock", value="FLQuants"),
 		catch.wt(object) <- value[['catch.wt']]
 		return(object)
 	}
-)
+) # }}}
 
-
-
-## trim
-if (!isGeneric("trim")) {
-	setGeneric("trim", function(object, ...){
-		value <- standardGeneric("trim")
-		value
-	})
-}
-
+## trim     {{{
 setMethod("trim", signature("FLStock"), function(object, ...){
 
 	args <- list(...)
 
-  c1 <- args[[quant(object@stock.n)]]
+    c1 <- args[[quant(object@stock.n)]]
 	c2 <- args[["year"]]
 	c3 <- args[["unit"]]
 	c4 <- args[["season"]]
 	c5 <- args[["area"]]
+	c6 <- args[["iter"]]
 
-  # check if the criteria is not larger than the object
-	v <- c(length(c1), length(c2), length(c3), length(c4), length(c5))
-  if(sum(v > dim(object@stock.n))> 0){
-		stop("\n  Your criteria are wider then the object dim. I don't know what to do !\n")
-	}
+    # FLQuants with quant
+	names <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
 
-	names. <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
-  for (name in names.) {
-    if (dim(slot(object,name))[1]==1 & dim(slot(object,name))[2] > 1 ) {
-      slot(object,name) <- trim(slot(object,name), year=c2, unit=c3, season=c4, area=c5 )
-    } else if (dim(slot(object,name))[1] > 1 ){
-      slot(object,name) <- trim(slot(object,name), age=c1, year=c2, unit=c3, season=c4, area=c5 )
+    for (name in names) {
+        if(name %in% c('stock', 'catch', 'landings', 'discards'))
+            slot(object,name) <- trim(slot(object,name), year=c2, unit=c3, season=c4,
+                area=c5, iter=c6)
+        else
+            slot(object,name) <- trim(slot(object,name), age=c1, year=c2, unit=c3,
+                season=c4, area=c5, iter=c6)
     }
-  }
-
-  if (length(c1)>0 ) {
+            
+  if (length(c1) > 0) {
     object@range["min"] <- c1[1]
     object@range["max"] <- c1[length(c1)]
     object@range["plusgroup"] <- NA

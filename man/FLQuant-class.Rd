@@ -1,4 +1,4 @@
-% $Id: FLQuant-class.Rd,v 1.9.2.4 2006/05/05 09:00:52 ejardim Exp $
+% $Id: FLQuant-class.Rd,v 1.9.2.5 2006/06/14 11:49:40 ejardim Exp $
 \name{FLQuant}
 \docType{class}
 \alias{FLQuant-class}
@@ -18,7 +18,7 @@
 \alias{landings,FLQuant-method}
 %\alias{aggregate,FLQuant-method}
 \alias{apply,FLQuant,ANY,ANY-method}
-\alias{as.data.frame,FLQuant,missing,missing-method}
+\alias{as.data.frame,FLQuant,ANY,ANY-method}
 
 \title{FLQuant class and methods}
 

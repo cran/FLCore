@@ -3,6 +3,7 @@
 \alias{bubbles}
 \alias{bubbles-methods}
 \alias{bubbles,FLQuant-method}
+\alias{bubbles,FLQuants-method}
 \alias{bubbles,formula,FLQuant-method}
 \title{Lattice style bubble plots}
 \description{
