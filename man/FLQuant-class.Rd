@@ -1,4 +1,4 @@
-% $Id: FLQuant-class.Rd,v 1.9.2.2 2005/12/19 11:13:48 iagoazti Exp $
+% $Id: FLQuant-class.Rd,v 1.9.2.3 2006/03/28 07:19:58 iagoazti Exp $
 \name{FLQuant}
 \docType{class}
 \alias{FLQuant-class}
@@ -103,7 +103,11 @@ Graphic output:
 
 Object coercion:
     \item{\link{as.data.frame}:}{Coerce an FLQuant into a data.frame, with
-    columns for each dimension. \code{units} is added as an attribute.}
+    columns for each dimension and an extra data column holding the actual
+    data. Dimensions units, area and season are all coerced to factors, while
+    year is coerced to numeric. The quant dimension is coerced to either of them
+    depending on its content. Numeric values (like ages) will be converted to numeric
+    while text labels will convert to factor. \code{units} is added as an attribute.}
    }
 }
 

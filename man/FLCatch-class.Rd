@@ -5,10 +5,43 @@
 \alias{summary,FLCatch-method}
 \alias{plot,FLCatch,missing-method}
 \alias{transform,FLCatch-method}
+\alias{computeCatch,FLCatch-method}
+\alias{computeLandings,FLCatch-method}
+\alias{computeDiscards,FLCatch-method}
+\alias{name,FLCatch-method}
+\alias{name<-,FLCatch,character-method}
+\alias{gear,FLCatch-method}
+\alias{gear<-,FLCatch,character-method}
+\alias{range,FLCatch-method}
+\alias{range<-,FLCatch,numeric-method}
 \alias{catch,FLCatch-method}
+\alias{catch<-,FLCatch,FLQuant-method}
+\alias{catch.n,FLCatch-method}
+\alias{catch.n<-,FLCatch,FLQuant-method}
+\alias{catch.wt,FLCatch-method}
+\alias{catch.wt<-,FLCatch,FLQuant-method}
+\alias{catch.sel,FLCatch-method}
+\alias{catch.sel<-,FLCatch,FLQuant-method}
 \alias{landings,FLCatch-method}
+\alias{landings<-,FLCatch,FLQuant-method}
+\alias{landings.n,FLCatch-method}
+\alias{landings.n<-,FLCatch,FLQuant-method}
+\alias{landings.wt,FLCatch-method}
+\alias{landings.wt<-,FLCatch,FLQuant-method}
+\alias{landings.sel,FLCatch-method}
+\alias{landings.sel<-,FLCatch,FLQuant-method}
 \alias{discards,FLCatch-method}
-
+\alias{discards<-,FLCatch,FLQuant-method}
+\alias{discards.n,FLCatch-method}
+\alias{discards.n<-,FLCatch,FLQuant-method}
+\alias{discards.wt,FLCatch-method}
+\alias{discards.wt<-,FLCatch,FLQuant-method}
+\alias{discards.sel,FLCatch-method}
+\alias{discards.sel<-,FLCatch,FLQuant-method}
+\alias{catchability,FLCatch-method}
+\alias{catchability<-,FLCatch,FLQuant-method}
+\alias{price,FLCatch-method}
+\alias{price<-,FLCatch,FLQuant-method}
 
 \title{Class FLCatch}
 \description{An internal class for FLFleet objects that stores stock or species specific information on landings, discards and catches}
@@ -34,7 +67,7 @@
     \item{\code{landings.n}:}{Landings in numbers by age}
     \item{\code{landings.wt}:}{Weight at age of landings}
     \item{\code{landings.sel}:}{Selectivity by age of the landings}
-    \item{\code{q}:}{catchbility coefficient}
+    \item{\code{catchability}:}{catchability coefficient}
     \item{\code{price}:}{Price by age and weight}
   }
 }

@@ -2,8 +2,8 @@
 
 # Author: Iago Mosqueira, AZTI Fundazioa
 # Additions:
-# Last Change: 15 Dec 2005 01:24
-# $Id: FLIndex.R,v 1.5.2.2 2005/12/19 11:23:49 iagoazti Exp $
+# Last Change: 06 mar 2006 15:56
+# $Id: FLIndex.R,v 1.5.2.3 2006/03/13 12:12:14 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -30,7 +30,6 @@ summary(fi)
 dims(fi)
 
 # window
-fw <- window(fi, start=1, end=15)
 fw <- window(fi, start=1, end=15, frequency=3)
 fw <- window(fw, start=1, end=5)
 

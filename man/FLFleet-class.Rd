@@ -6,6 +6,12 @@
 \alias{plot,FLFleet,missing-method}
 \alias{transform,FLFleet-method}
 \alias{revenue,FLFleet-method}
+\alias{name,FLFleet-method}
+\alias{name<-,FLFleet,character-method}
+\alias{desc,FLFleet-method}
+\alias{desc<-,FLFleet,character-method}
+\alias{effort,FLFleet-method}
+\alias{effort<-,FLFleet,FLQuant-method}
 
 \title{FLFleet class and methods}
 

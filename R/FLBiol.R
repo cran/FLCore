@@ -1,8 +1,9 @@
 # FLBiol - «Short one line description»
 # Author: FLR Team
+# Maintainer: Laurie Kell, CEFAS
 # Additions:
-# Last Change: 20 Dec 2005 00:08
-# $Id: FLBiol.R,v 1.14.2.2 2005/12/20 08:16:00 iagoazti Exp $
+# Last Change: 26 mar 2006 18:15
+# $Id: FLBiol.R,v 1.14.2.8 2006/03/28 07:19:58 iagoazti Exp $
 # Reference:
 # Notes:
 # TODO Lun 07 Mar 2005 12:10:37 GMT iagoazti:
@@ -68,52 +69,54 @@ setClass("FLBiol",
 	prototype=prototype(
 		name     =character(0),
 		desc     =character(0),
-		range    =unlist(list(minage=0, maxage=0, plusgroup=NA, minyear=0, maxyear=0)),
-        n        =new("FLQuant"),
-		m        =new("FLQuant"),
-		wt       =new("FLQuant"),
-		fec      =new("FLQuant"),
-		spwn     =new("FLQuant")),
+		range    =unlist(list(minage=NA, maxage=NA, plusgroup=NA, minyear=1, maxyear=1)),
+        n        = FLQuant(),
+		m        = FLQuant(),
+		wt       = FLQuant(),
+		fec      = FLQuant(),
+		spwn     = FLQuant()),
 	validity=validFLBiol
 )
 
 setValidity("FLBiol", validFLBiol)
 remove(validFLBiol)	# We do not need this function any more
 
-FLBiol <- function(name, desc, iniFLQuant, quant = "missing"){
-	if (missing(name))
-		name <- character(0)
-	if (missing(desc))
-		desc <- character(0)
-	if (missing(iniFLQuant)){
-		return(new("FLBiol", name=name, desc=desc))
-	} else {
-		# Initialize FLQuant slots; dim, dimnames as iniFLQuant
-		if (!inherits(iniFLQuant, "FLQuant"))
-			stop("iniFLQuant must be an FLQuant object")
-        # Template FLQuant for age-structured slots
-		    mat <- iniFLQuant
-		    mat[,,,,] <- NA
-        # Template for age-aggregated FLQuants
-        names <- dimnames(mat)
-        agr <- FLQuant(array(NA, dim=c(1,dim(mat)[2:5]), dimnames=list('all',
-            year=names[[2]], unit=names[[3]], season=names[[4]], area=names[[5]])))
-        quant(agr) <- quant(mat)
-		    Par <- dims(iniFLQuant)
+FLBiol <- function(name=character(0), desc=character(0), plusgroup=NA, quant='quant', ...){
 
-		return(new("FLBiol",
-			  name        = name,
-			  desc        = desc,
-        n           = mat,
-        m           = mat,
-        wt          = mat,
-		    fec         = mat,
-    		spwn        = mat,
-			  range       = unlist(list(min = Par$min, max = Par$max,
-                      plusgroup = NA, minyear = Par$minyear, maxyear = Par$maxyear)))
-		)
-	}
-}
+	args <- list(...)
+
+	if(length(args)==0)
+		args <- list(n=FLQuant())
+
+	# Set FLQuant dimensions
+	dimnames <- dimnames(args[[names(lapply(args, is.FLQuant)==TRUE)[1]]])
+
+	# template FLQuants
+	if (missing(quant))
+		quant <- names(dimnames)[1]
+	iniFLQ <- FLQuant(dimnames=dimnames, quant=quant)
+	agrFLQ <- FLQuant(dimnames=c(quant='all', dimnames(iniFLQ)[-1]), quant=quant)
+
+	dims <- dims(iniFLQ)
+
+	res <- new("FLBiol",
+		name		= name,
+		desc		= desc,
+        n           = iniFLQ,
+		m	        = iniFLQ,
+		wt	        = iniFLQ,
+		fec		    = iniFLQ,
+		spwn	    = iniFLQ,
+		range       = unlist(list(min=dims$min, max=dims$max, plusgroup=plusgroup,
+			minyear=dims$minyear, maxyear=dims$maxyear)))
+	
+	# Load given slots
+	for(i in names(args))
+		if (i != 'iniFLQuant')
+			slot(res, i) <- args[[i]]
+
+	return(res)
+}	# }}}
 
 ## summary
 setMethod("summary", signature(object="FLBiol"),
@@ -151,27 +154,27 @@ setMethod("window", signature(x="FLBiol"),
 		names. <- names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])
 		
 		for (s. in names.) {
-      if(is.numeric(slot(x, s.))){
-			  slot(x, s.) <- window(slot(x, s.), start=start, end=end,
-									   extend=extend, frequency=frequency)
-			  x@range["minyear"] <- start
-			  x@range["maxyear"] <- end
-			}
+ 	            slot(x, s.) <- window(slot(x, s.), start=start, end=end,
+		      extend=extend, frequency=frequency)
+
 		}
+  	        x@range["minyear"] <- start
+		x@range["maxyear"] <- end
+
 		return(x)
 	}
 )
 
 
-setMethod("transform", signature(x="FLBiol"),
-	function(x, ...) {
+setMethod("transform", signature(`_data`="FLBiol"),
+	function(`_data`, ...) {
 
 		args <- list(...)
 		for (i in 1:length(args)) {
-			slot(x, names(args)[i])[,,,,,] <- args[[i]][,,,,,]
+			slot(`_data`, names(args)[i]) <- args[[i]]
 		}
 
-		return(x)
+		return(`_data`)
 	}
 )
 

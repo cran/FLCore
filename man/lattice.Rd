@@ -1,19 +1,12 @@
 \name{FLCore lattice-methods}
 \docType{methods}
-\alias{xyplot,FLQuant-method}
-\alias{xyplot,FLQuants-method}
-\alias{bwplot,FLQuant-method}
-\alias{dotplot,FLQuant-method}
-\alias{barchart,FLQuant-method}
-\alias{stripplot,FLQuant-method}
-\alias{histogram,FLQuant-method}
-\alias{xyplot,formula-method}
-\alias{xyplot,formula-method}
-\alias{bwplot,formula-method}
-\alias{dotplot,formula-method}
-\alias{barchart,formula-method}
-\alias{stripplot,formula-method}
-\alias{histogram,formula-method}
+\alias{xyplot,formula,FLQuant-method}
+\alias{xyplot,formula,FLQuants-method}
+\alias{bwplot,formula,FLQuant-method}
+\alias{dotplot,formula,FLQuant-method}
+\alias{barchart,formula,FLQuant-method}
+\alias{stripplot,formula,FLQuant-method}
+\alias{histogram,formula,FLQuant-method}
 \title{FLCore lattice methods}
 \description{These are implementations of the most common lattice plots to FLQuant objects.}
 \section{Generic Function}{
@@ -48,10 +41,6 @@ The implementation of these methods make use of \code{as.data.frame} to coerce F
 data(ple4sex)
 # plot the ages per year for males
 xyplot(data~age|year, data=trim(ple4sex@catch.n, unit="male"), type="b")
-# make use of FLQuants to plot males and females together
-plelst <- list(males=trim(ple4sex@catch.n, unit="male"), females=trim(ple4sex@catch.n, unit="female"))
-flqs <- FLQuants(plelst)
-xyplot(data~age|year, data=flqs, type="b", auto.key=TRUE)
 # use boxplots to explore the variability along the years
 bwplot(data~age|unit, data=ple4sex@catch.n)
 # or just take a look at all results

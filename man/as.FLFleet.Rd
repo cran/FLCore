@@ -7,11 +7,11 @@
     Conversion to \code{FLFleet} of various other classes.
 }
 \usage{
-as.FLFleet(x)
+as.FLFleet(object)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{An FLR object to be converted. Currently only working for \code{FLStock} objects}
+  \item{object}{An FLR object to be converted. Currently only working for \code{FLStock} objects}
 }
 \details{
 }

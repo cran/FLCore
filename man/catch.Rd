@@ -1,15 +1,21 @@
 \name{catch}
-\alias{catch}
-\alias{landings}
-\alias{discards}
-\title{Methods for estimating time series from dissagregated data}
+\alias{computeCatch}
+\alias{computeLandings}
+\alias{computeDiscards}
+\alias{computeCatch-methods}
+\alias{computeLandings-methods}
+\alias{computeDiscards-methods}
+\alias{computeCatch,FLStock-method}
+\alias{computeLandings,FLStock-method}
+\alias{computeDiscards,FLStock-method}
+\title{Methods for estimating aggregated catch time series from dissagregated data}
 \description{
-	Object such as \code{\link{FLStock-class}} that incorporate quant-dissagregated objects for catch, diacards and landings nunber and weights, usually have quant-aggregated versions. To estimate the later from the first two, these methods (\code{catch}, \code{landings} and \code{discards}) can be used.
+	Object such as \code{\link{FLStock-class}} that incorporate quant-dissagregated objects for catch, diacards and landings nunber and weights, usually have quant-aggregated versions. To estimate the later from the first two, these methods (\code{computeCatch}, \code{computeLandings} and \code{computeDiscards}) can be used.
 }
 \usage{
-catch(object, ...)
-landings(object, ...)
-discards(object, ...)
+computeCatch(object, ...)
+computeLandings(object, ...)
+computeDiscards(object, ...)
 }
 \arguments{
   \item{object}{An object containing slots for numbers-by-quant and weight-at-quant. Currently object can be of class \code{\link{FLStock-class}} or \code{\link{FLCatch-class}}.}

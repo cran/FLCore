@@ -1,8 +1,8 @@
 # io.FLIndex - 
 
 # Author: FLR Team
-# Last Change: 14 Dec 2005 23:12
-# $Id: io.FLIndices.R,v 1.12.2.5 2005/12/19 11:22:23 iagoazti Exp $
+# Last Change: 14 mar 2006 15:32
+# $Id: io.FLIndices.R,v 1.12.2.10 2006/04/19 15:59:24 ltkell Exp $
 
 # Reference:
 # Notes:
@@ -205,25 +205,25 @@ readIndices.VPA <- function(file., sep="", quiet=TRUE) {
                                unit="unique",
                                season ="all",
                                area = "unique"))
-		catch <- FLQuant(t(unname(as.matrix(catch))), dimnames=list(age = as.character(ages[1]:ages[2]),
+    		catch <- FLQuant(t(unname(as.matrix(catch))), dimnames=list(age = as.character(ages[1]:ages[2]),
                                      year=as.character(yrs[1]:yrs[2]),
                                      unit="unique",
                                      season ="all",
                                      area = "unique"))
-        temp <- FLIndex(iniFLQuant=effort)
-        temp@catch <- catch
-        temp@effort <- effort
-        temp@index <- FLQuant(array(index, dim=c(nages, nyrs, 1,1,1),
+        index <- FLQuant(array(index, dim=c(nages, nyrs, 1,1,1),
                        dimnames=list(quant =as.character(ages[1]:ages[2]),
                                      year=as.character(yrs[1]:yrs[2]),
                                      unit="unique",
                                      season="all",
                                      area="unique")), quant="age")
-        temp@index.wt <- FLQuant(temp@index)
-        temp@q <- FLQuant(temp@index)
-        temp@weighting <- FLQuant(temp@index)
-        temp@prop <- FLQuant(temp@index)
-		temp@name	<- name
+#        temp@index.wt <- FLQuant(temp@index)
+#        temp@q <- FLQuant(temp@index)
+#        temp@weighting <- FLQuant(temp@index)
+#        temp@prop <- FLQuant(temp@index)
+        temp <- FLIndex(index=index)
+        temp@catch.n <- catch
+        temp@effort <- effort
+		temp@name	<- paste(name, collapse=" ")
         temp@desc	<- desc
         temp@range  <- c(ages[1], ages[2], ages[2], yrs[1], yrs[2], alpha, beta)
         names(temp@range)<-c("min","max","plusgroup","minyear","maxyear","startf","endf")
@@ -311,115 +311,30 @@ return(c.)
 }	# }}}
 
 ## readIndices.ICA		{{{
-readIndices.ICA <- function(file., ssb., sep="") {
-
-    # calculates number of fleets contained in Index file
-    num	<- (scan(file., skip=1, nlines=1, sep=sep, quiet=T))-100
-
-    #description of the group of fleets
-    desc	<- paste("Imported from", scan(file., nlines=1, what="character", sep="\n", quiet=T))
-
-    # produces starting values for v w x y z
-    v <- -2
-    w <- -1
-    x <- 0
-    y <- 1
-    z <- 2
-    nyrs <- 0
-
-    # creates empty FLIndices object
-    FLIndices. <- FLIndices()		
-
-    for(i in 1:num) {
-        # produces the values for v w x y z relevant to each fleet in Index file
-        v <- v + 4+nyrs
-        w <- w + 4+nyrs
-        x <- x + 4+nyrs
-        y <- y + 4+nyrs
-        z <- z + 4+nyrs
-
-        # calculates the year range
-        yrs	<- scan(file., skip=w, nlines=1, sep=sep, quiet=T)
-        nyrs  <- yrs[2]-yrs[1]+1 
-
-        # calculates the age range
-        ages  <- scan(file., skip=y, nlines=1, sep=sep, quiet=T)
-        nages <- ages[2]-ages[1]+1
-
-        # calculates the values for alpha and beta
-        AB	<- scan(file., skip=x, nlines=1, sep=sep, quiet=T)
-        alpha <- AB[3]
-        beta  <- AB[4]
-
-        # retrieve information for the effort slot
-        eff   <- matrix(t(as.matrix(read.table(file=file., skip=z,
-            nrows=nyrs ,sep=sep)[1:nyrs,1])), nrow=1, ncol=nyrs,
-            dimnames=list("all", yrs[1]:yrs[2]))
-
-	    # retreives catch numbers at age
-        index <- as.matrix(read.table(file=file., skip=z, nrows=nyrs,
-            sep=sep)[1:nyrs,2:(nages+1)])
-
-        # calculates values for the index slot
-        for(j in 1:nyrs) {
-            index[j,] <- index[j,]/eff[j]
+## readIndices.ICA		{{{
+readIndices.ICA <- function(file, file2, sep="") {
+  if (file=="" & file2!="")       return(readIndices.ICA.ssb(file.=file2,sep=sep))
+  else if (file!="" & file2=="")  return(readIndices.VPA(file.=file))
+  else                            return(FLIndices(c(readIndices.VPA(file.=file), readIndices.ICA.ssb(file.=file2,sep=sep))))
+  }
+  
+readIndices.ICA.ssb <- function(file., sep="") {
+      
+      title<-scan(file=file.,skip=0,quiet=TRUE,nlines=1,what=character())
+      stuff<-scan(file=file.,skip=1,quiet=TRUE,nlines=1)
+      names<-scan(file=file.,skip=2,quiet=TRUE,nlines=1,what=character())[-c(1,stuff[3])]
+      data <-scan(file=file.,skip=3,quiet=TRUE)
+      data <-t(matrix(data,c(length(data)/stuff[2],stuff[2])))[,-stuff[3]]
+       
+      indices<-new("FLIndices")
+      
+      for (i in 1:stuff[1])
+        {
+        indices[[i]]<-FLIndex(index=as.FLQuant(data[,2],dimnames=list(age="all",year=data[,1])),name=names[i],desc=title)
+        indices[[i]]@type<-"biomass"
         }
-
-	    # Creates index slot
-        index <- matrix(t(index),nrow=nages, ncol=nyrs,
-            dimnames=list(ages[1]:ages[2],yrs[1]:yrs[2]))
-    	# retreives the names for each fleet
-        name <- scan(file., skip=v, nlines=1, what="character", quiet=T)
-
-        # Produces a FLIndex object for each fleet
-        temp <- FLIndex()
-        temp@effort <- as.FLQuant(eff)
-        temp@index  <- as.FLQuant(index)
-        temp@name	<- name
-        temp@desc	<- desc
-        temp@range  <- c("min"=ages[1], "max"=ages[2], "plusgroup"=ages[2],
-            "minyear"=yrs[1], "maxyear"=yrs[2], "startf"=alpha, "endf"=beta)
-
-        # Creates the FLIndices list of fleets
-        FLIndices.[[i]] <- temp
-    }
-
-	#Compiles an FLIndex object from the SSB file
-	t.       <-read.table(ssb.,skip=3)
-	c.       <-FLIndex()
-	c.@index <-as.FLQuant(array(t.[,3],dim=c(1,length(t.[,3]),1,1,1)))
-	c.@effort<-as.FLQuant(array(t.[,2],dim=c(1,length(t.[,3]),1,1,1)))
-	c.@w     <-as.FLQuant(array(1.00,  dim=c(1,length(t.[,3]),1,1,1)))
-	c.@p     <-as.FLQuant(array(NA,    dim=c(1,length(t.[,3]),1,1,1)))
-	d.       <-dimnames(c.@index)
-	d.$age   <-"all"
-	d.$year  <-as.character(t.[,1])
-
-	dimnames(c.@index) <-d.
-	dimnames(c.@effort)<-d.
-	dimnames(c.@w)     <-d.
-	dimnames(c.@p)     <-d.
-
-	c.@pdf   <-"log"
-	c.@type <-"biomass"
-#    c.@method<-"ICA"
-	c.@name  <-scan(ssb.,sep="\n",nlines=1,what="character",quiet=TRUE)
-	c.@desc  <-"ICA SSB Index"
-#    c.@method<-"ICA"
-
-    c.@range["min"]       <- NA
-	c.@range["max"]       <- NA
-	c.@range["plusgroup"]    <- NA
-	c.@range["minyear"]      <- min(t.[,1])
-	c.@range["maxyear"]      <- max(t.[,1])
-	c.@range["startf"] <- 0.0
-	c.@range["endf"]   <- 1.0
-
-	# adds the SSB FLIndex object to the FLIndices object
-	FLIndices.	<- FLIndices(c(FLIndices., list(c.)))
-
-    FLIndices.@desc <- paste("Imported from", file., sep=" ")
-    return(FLIndices.)
+        
+      return(indices)  
 }	# }}}
 
 ## checkIndex	{{{
@@ -580,7 +495,7 @@ set.index <- function(smry.,index.,p.,l.,range) {
                 dimnames=list(age="all",year=(index.[index.[,1]==i,2]))))
 
 			l.[[i]]@index.wt <- FLQuant(l.[[i]]@index)
-			l.[[i]]@catch <- FLQuant(l.[[i]]@index)
+			l.[[i]]@catch.n <- FLQuant(l.[[i]]@index)
 			l.[[i]]@prop <- FLQuant(l.[[i]]@index)
 
             l.[[i]]@effort <- FLQuant(array(1,

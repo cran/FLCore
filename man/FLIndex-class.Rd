@@ -1,11 +1,9 @@
 \name{FLIndex-class}
 \docType{class}
 \alias{FLIndex-class}
-\alias{FLIndexCom-class}
 \alias{FLIndexSurvey-class}
 \alias{FLIndexAcoustic-class}
 \alias{FLIndex}
-\alias{FLIndexCom}
 \alias{FLIndexSurvey}
 \alias{FLIndexAcoustic}
 \alias{apply,FLIndex,list,function-method}
@@ -22,26 +20,16 @@
 \alias{index<-,FLIndex,FLQuant-method}
 \alias{index.var,FLIndex-method}
 \alias{index.var<-,FLIndex,FLQuant-method}
-\alias{catch,FLIndexCom-method}
-\alias{catch<-,FLIndexCom,FLQuant-method}
-\alias{catch.wt,FLIndexCom-method}
-\alias{catch.wt<-,FLIndexCom,FLQuant-method}
-\alias{effort,FLIndexCom-method}
-\alias{effort<-,FLIndexCom,FLQuant-method}
-\alias{sel.pattern,FLIndexCom-method}
-\alias{sel.pattern<-,FLIndexCom,FLQuant-method}
-\alias{index.q,FLIndexCom-method}
-\alias{index.q<-,FLIndexCom,FLQuant-method}
-\alias{catch.n,FLIndexSurvey-method}
-\alias{catch.n<-,FLIndexSurvey,FLQuant-method}
-\alias{catch.wt,FLIndexSurvey-method}
-\alias{catch.wt<-,FLIndexSurvey,FLQuant-method}
-\alias{effort,FLIndexSurvey-method}
-\alias{effort<-,FLIndexSurvey,FLQuant-method}
-\alias{index.q,FLIndexSurvey-method}
-\alias{index.q<-,FLIndexSurvey,FLQuant-method}
-\alias{index.q,FLIndexAcoustic-method}
-\alias{index.q<-,FLIndexAcoustic,FLQuant-method}
+\alias{catch.n,FLIndex-method}
+\alias{catch.n<-,FLIndex,FLQuant-method}
+\alias{catch.wt,FLIndex-method}
+\alias{catch.wt<-,FLIndex,FLQuant-method}
+\alias{effort,FLIndex-method}
+\alias{effort<-,FLIndex,FLQuant-method}
+\alias{index.q,FLIndex-method}
+\alias{index.q<-,FLIndex,FLQuant-method}
+\alias{sel.pattern,FLIndex-method}
+\alias{sel.pattern<-,FLIndex,FLQuant-method}
 
 \title{Class FLIndex}
 \description{A class designed to hold data and parameters related to abundance indices}
@@ -54,10 +42,6 @@ Objects can be created by calls of the form \code{new("FLIndex", ...)}, through 
 	an empty FLIndex of the right dimensions, as in
 
 	\code{FLIndex(index=FLQuant(dim=c(5,10,1,1,1)))}
-
-	By using the \code{class} argument, objects can be created of the derived FLIndex classes. This can
-	also be achieved by using the corresponding creator functions: \code{FLIndexCom()},
-	\code{FLIndexSurvey()} and \code{FLIndexAcoustic()}.
 }
 \section{Slots}{
 	Objects of the FLIndex class contain the following slots:
@@ -70,30 +54,6 @@ Objects can be created by calls of the form \code{new("FLIndex", ...)}, through 
 	    \item{\code{index}:}{An \code{"FLQuant"}  for the index (CPUE or other) in numbers, either quant 
 		(i.e., age) structured, or not.}
 	    \item{\code{index.var}:}{An \code{"FLQuant"} for the index variance}
-	}
-	The \code{FLIndexCom} class, designed for indices based on commercial catch data, adds the
-		following slots:
-	\describe{
-		\item{\code{catch}:}{An \code{"FLQuant"} for the catch}
-		\item{\code{catch.wt}:}{An \code{"FLQuant"} for the weight-at-age (or length) in the catch}
-	    \item{\code{effort}:}{An \code{"FLQuant"} for the effort time series. The \code{units} slot should
-			indicate the units used to measure it (days, hooks per line,...)}
-    	\item{\code{sel.pattern}:}{An \code{"FLQuant"} for the selection pattern.}
-    	\item{\code{index.q}:}{An \code{"FLQuant"} for the index catchability.}
-	}
-	The \code{FLIndexSurvey} class, designed for indices based on catch surveys, adds the
-		following slots:
-	\describe{
-		\item{\code{catch.n}:}{An \code{"FLQuant"} for the catch by age or quant}
-		\item{\code{catch.wt}:}{An \code{"FLQuant"} for the weight-at-age (or length) in the catch}
-	    \item{\code{effort}:}{An \code{"FLQuant"} for the effort time series. The \code{units} slot should
-			indicate the units used to measure it (days, hooks per line,...)}
-    	\item{\code{index.q}:}{An \code{"FLQuant"} for the index catchability.}
-	}
-	The \code{FLIndexAcoustic} class, designed for indices based on acoustic surveys, adds the
-		following slots to be basic class:
-	\describe{
-    	\item{\code{index.q}:}{An \code{"FLQuant"} for the index catchability.}
 	}
 }
 \section{Methods}{
@@ -112,8 +72,6 @@ Objects can be created by calls of the form \code{new("FLIndex", ...)}, through 
 }
 \examples{
 fi <- FLIndex(name = 'index', desc = 'An index', index=FLQuant(dim=c(5,10,1,1,1)))
-summary(fi)
-fi <- FLIndex(name = 'index', desc = 'An index', index=FLQuant(dim=c(5,10,1,1,1)), class="FLIndexCom")
 summary(fi)
 }
 \keyword{classes}

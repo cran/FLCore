@@ -2,17 +2,16 @@
 
 # Author: Iago Mosqueira & Dorleta García, AZTI Fundazioa
 # Additions:
-# Last Change: 15 Dec 2005 18:13
-# $Id: FLStock.R,v 1.6.2.2 2005/12/19 11:23:49 iagoazti Exp $
+# Last Change: 22 mar 2006 16:08
+# $Id: FLStock.R,v 1.6.2.7 2006/03/22 16:37:58 iagoazti Exp $
 
 # Reference:
 # Notes:
 
 library(FLCore)
 
-
 ## class
-fls <- new("FLStock")     # Lo dimensiona todo a 1.
+fls <- new("FLStock")
 
 ## FLSTock()
 fls <- FLStock()
@@ -76,9 +75,9 @@ fls@discards.n <- FLQuant(array(matrix(c(rnorm(10, 50000, 100),
 	rnorm(10, 10000, 100)), 5, 10, byrow =T), dim = c(5, 10, 1, 1, 1)))*0.1
 
 fls@landings.wt <- fls@catch.wt
-fls@catch <- catch(fls)
-fls@discards <- discards(fls)
-fls@landings <- landings(fls)
+fls@catch <- computeCatch(fls)
+fls@discards <- computeDiscards(fls)
+fls@landings <- computeLandings(fls)
 fls@discards.wt <- fls@catch.wt
 
 # Los slots mat, stock.wt, stock.n y  f tienen que estar rellenos para que el
@@ -108,14 +107,14 @@ for(i in s){
  slot(fls4, i) <- as.FLQuant(A)
 }
 
-fls2@catch <- catch(fls2)
-fls3@catch <- catch(fls3)
-fls4@catch <- catch(fls4)
+fls2@catch <- computeCatch(fls2)
+fls3@catch <- computeCatch(fls3)
+fls4@catch <- computeCatch(fls4)
 
-plot(fls)
-plot(fls2)
-plot(fls3)
-plot(fls4)
+#plot(fls)
+#plot(fls2)
+#plot(fls3)
+#plot(fls4)
 
 # window
 
@@ -138,9 +137,8 @@ fls@m.spwn <- as.FLQuant(array(0, dim = c(5,10)))
 ssb(fls)
 
 # transform.
-
 fls2 <- transform(fls, catch.n = fls@catch.n/1000, stock.n = fls@catch.n*1000)
 
 # apply.
-
-fls2 <- apply(fls, list("catch.n", "landings.n"), mean)
+fls2 <- apply(fls, 2:5, mean)
+fls2 <- apply(fls, 2:5, sum)

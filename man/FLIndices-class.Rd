@@ -3,6 +3,7 @@
 \alias{FLIndices-class}
 \alias{FLIndices}
 \alias{summary,FLIndices-method}
+\alias{plot,FLIndices,missing-method}
 
 \title{Class FLIndices}
 \description{

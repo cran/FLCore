@@ -9,10 +9,10 @@ This method provides a trimming procedure for FLQuants. This is a generic method
 for FLQuant, and can be overloaded for other classes.
 }
 \usage{
-	trim(obj, ...)
+	trim(object, ...)
 }
 \arguments{
-	\item{obj}{The object to be trimmed}
+	\item{object}{The object to be trimmed}
 	\item{...}{dimensions and dimnames to trim the object along.}
 }
 \section{Methods}{

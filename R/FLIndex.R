@@ -1,9 +1,10 @@
 # FLIndex.R - FLIndex class and methods
 
 # Author: FLR Team
+# Maintainer: Richard Hillary, Imperial College London
 # Additions:
-# Last Change: 20 Dec 2005 13:52
-# $Id: FLIndex.R,v 1.20.2.9 2005/12/20 15:40:25 iagoazti Exp $
+# Last Change: 30 mar 2006 16:48
+# $Id: FLIndex.R,v 1.20.2.24 2006/04/06 18:57:36 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -53,111 +54,74 @@ validFLIndex <- function(object) {
 
 setClass("FLIndex",
     representation(
-        name      = "character",
-        desc      = "character",
-        range     = "numeric",
+        name         = "character",
+        desc         = "character",
+        type         = "character",
+        range        = "numeric",
         distribution = "character",
-        index     = "FLQuant",
-        index.var = "FLQuant"),
+        index        = "FLQuant",
+        index.var    = "FLQuant",
+        catch.n      = "FLQuant",
+		catch.wt     = "FLQuant",
+		effort       = "FLQuant",
+		sel.pattern  = "FLQuant",
+		index.q      = "FLQuant"),
     prototype=prototype(
-        name      = character(0),
-        desc      = character(0),
-        range     = unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0, startf=NA, endf=NA)),
+        name         = character(0),
+        desc         = character(0),
+        type         = character(0),
+        range        = unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0, startf=NA, endf=NA)),
         distribution = character(0),
-        index     = new("FLQuant"),
-        index.var = new("FLQuant")),
+        index        = new("FLQuant"),
+        index.var    = new("FLQuant"),
+		    catch.n      = new("FLQuant"),
+		    catch.wt     = new("FLQuant"),
+		    effort       = new("FLQuant"),
+		    sel.pattern  = new("FLQuant"),
+		    index.q      = new("FLQuant")),
     validity=validFLIndex
 )
 
 setValidity("FLIndex", validFLIndex)
 remove(validFLIndex)    #   }}}
 
-# class :: FLIndexCom		{{{
-setClass("FLIndexCom",
-	representation("FLIndex",
-		catch="FLQuant",
-		catch.wt="FLQuant",
-		effort="FLQuant",
-		sel.pattern="FLQuant",
-		index.q="FLQuant"),
-	prototype=prototype(
-		name=character(0),
-		desc=character(0),
-		range=unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0, startf=NA, endf=NA)),
-		distribution=character(0),
-		index=new("FLQuant"),
-		index.var=new("FLQuant"),
-		catch=new("FLQuant"),
-		catch.wt=new("FLQuant"),
-		effort=new("FLQuant"),
-		sel.pattern=new("FLQuant"),
-		index.q=new("FLQuant"))
-)	# }}}
-
-# class :: FLIndexSurvey		{{{
-setClass("FLIndexSurvey",
-	representation("FLIndex",
-		catch.n="FLQuant",
-		catch.wt="FLQuant",
-		effort="FLQuant",
-		index.q="FLQuant"),
-	prototype=prototype(
-		name=character(0),
-		desc=character(0),
-		range=unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0, startf=NA, endf=NA)),
-		distribution=character(0),
-		index=new("FLQuant"),
-		index.var=new("FLQuant"),
-		catch.n=new("FLQuant"),
-		catch.wt=new("FLQuant"),
-		effort=new("FLQuant"),
-		index.q=new("FLQuant"))
-)	# }}}
-
-# class :: FLIndexAcoustic	{{{
-setClass("FLIndexAcoustic",
-	representation("FLIndex",
-		index.q="FLQuant"),
-	prototype=prototype(
-		name=character(0),
-		desc=character(0),
-		range=unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0, startf=NA, endf=NA)),
-		distribution=character(0),
-		index=new("FLQuant"),
-		index.var=new("FLQuant"),
-		index.q=new("FLQuant"))
-)	# }}}
-
 ## FLIndex()    {{{
-FLIndex <- function(index=FLQuant(), index.var=FLQuant(index), name=character(0), desc=character(0),
-	distribution=character(0), startf=NA, endf=NA, plusgroup=NA, class="FLIndex", ...) {
+FLIndex <- function(name=character(0), desc=character(0), distribution=character(0),
+    type=character(0), startf=NA, endf=NA, plusgroup=NA, ...) {
 
 	args <- list(...)
-    dims <- dims(index)
-	new <- new(class, name = name, desc = desc, distribution = distribution, index = index,
-		index.var = index.var, range = unlist(list(min=dims$min, max=dims$max, plusgroup=NA,
-		minyear=dims$minyear, maxyear=dims$maxyear, startf=startf, endf=endf)))
+	if(length(args)==0)
+		args <- list(index=FLQuant())
+
+	dimnames <- dimnames(args[[names(lapply(args, is.FLQuant)==TRUE)[1]]])
+
+	if(!is.FLQuant(args['index']))
+		index <- FLQuant(dimnames=dimnames)
+
+	dims <- dims(index)
+
+	new <- new("FLIndex", name = name, desc = desc, distribution = distribution,
+        type=type,
+        index = index, index.var = FLQuant(dimnames=dimnames),
+        index.q = FLQuant(dimnames=dimnames), sel.pattern = FLQuant(dimnames=dimnames),
+        catch.n = FLQuant(dimnames=dimnames), catch.wt = FLQuant(dimnames=dimnames),
+        effort = FLQuant(dimnames=dimnames), 
+        range = unlist(list(min=dims$min, max=dims$max,
+		plusgroup=NA, minyear=dims$minyear, maxyear=dims$maxyear, startf=startf, endf=endf)))
 	
-	for(i in names(args))
+	# Add extra arguments
+	for(i in names(args)[names(args)!='iniFLQuant'])
 		slot(new, i) <- args[[i]]
 
+	# Correctly size other FLQuants.
+#    emptyQuants <- names(getSlots(class)[getSlots(class)=="FLQuant"])[
+#        !names(getSlots(class)[getSlots(class)=="FLQuant"])%in%c("index", "index.var",
+#        names(args))]
+#    for(i in emptyQuants)
+#        slot(new, i) <- FLQuant(index)
+	
 	return(new)
 }   # }}}
-
-## FLIndexCom()		{{{
-FLIndexCom <- function(...)
-	FLIndex(..., class="FLIndexCom")
-# }}}
-
-## FLIndexSurvey()		{{{
-FLIndexSurvey <- function(...)
-	FLIndex(..., class="FLIndexSurvey")
-# }}}
-
-## FLIndexAcoustic()		{{{
-FLIndexAcoustic <- function(...)
-	FLIndex(..., class="FLIndexAcoustic")
-# }}}
 
 ## is.FLIndex	{{{
 is.FLIndex <- function(x)
@@ -178,8 +142,8 @@ setMethod("summary", signature(object="FLIndex"),
         cat("Name:", object@name, "\n")
         cat("Description:", object@desc, "\n")
         cat("Error Prob. Distr.:", object@distribution, "\n")
-        cat("Range:\n")
-        print(object@range)
+		cat("Range:\tmin\tmax\tp+group\tminyear\tmaxyear\tstartf\tendf\n")
+		cat("", object@range, "\n", sep="\t")
         for (s in names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])) {
            if (sum(!complete.cases(slot(object, s))) == length(slot(object,s)))
                 cat(s, "   \t: EMPTY\n") else
@@ -217,9 +181,9 @@ setMethod("window", signature(x="FLIndex"),
         for (s in names) {
             slot(x, s) <- window(slot(x, s), start=start, end=end,
                 extend=extend, frequency=frequency)
-            x@range["minyear"] <- start
-            x@range["maxyear"] <- end
         }
+        x@range["minyear"] <- start
+        x@range["maxyear"] <- end
         return(x)
     }
 )	# }}}
@@ -236,15 +200,15 @@ setMethod("apply", signature(X="FLIndex", MARGIN="list", FUN="function"),
 )	# }}}
 
 ## transform::FLIndex	{{{
-setMethod("transform", signature(x="FLIndex"),
-    function(x, ...) {
+setMethod("transform", signature(`_data`="FLIndex"),
+    function(`_data`, ...) {
 
         args <- list(...)
 
         for (i in 1:seq(along=args)) {
-            slot(x, names(args)[i])[,,,,] <- args[[i]][,,,,]
+            slot(`_data`, names(args)[i]) <- args[[i]]
         }
-        return(x)
+        return(`_data`)
     }
 )	# }}}
 
@@ -335,6 +299,49 @@ setMethod("as.FLIndex", signature(object="FLFleet"),
 
 ## Accesors
 invisible(createFLAccesors(new("FLIndex"), exclude='range'))
-invisible(createFLAccesors(new("FLIndexCom"), exclude=c('name','desc','range','distribution','index','index.var')))
-invisible(createFLAccesors(new("FLIndexSurvey"), exclude=c('name','desc','range','distribution','index','index.var')))
-invisible(createFLAccesors(new("FLIndexAcoustic"), exclude=c('name','desc','range','distribution','index','index.var')))
+
+## plot::FLIndex	{{{
+setMethod("plot", signature(x="FLIndex",y="missing"),
+    function(x, type=c("splom"), ...) {
+
+	    plotinternal <- function(x, ... ) {
+        pfun <- function(x,y,...){
+          panel.xyplot(x,y, ...)
+          if (length(x) > 1) panel.lmline(x,y, lty=1)
+        }
+        skip <- matrix(1,nrow=dims(x@index)$age-1, ncol=dims(x@index)$age-1)
+        xydf <- NULL
+        for (age in dims(x@index)$min:(dims(x@index)$max-1) ){
+          for (inc in 1:(dims(x@index)$max-age)) {
+              years <- dims(x@index)$minyear:(dims(x@index)$maxyear-inc)
+              xd <- as.numeric(x@index[as.character(age),as.character(years),])
+              yd <- as.numeric(x@index[as.character(age+inc),as.character(years+inc),])
+              d <- paste("age",age,"vs",age+inc)
+              xydf <- rbind(xydf,cbind(as.data.frame(cbind(xd,yd)),d))
+              skip[dims(x@index)$max-dims(x@index)$min+1-inc, age-dims(x@index)$min + 1] <-0
+          }
+        }
+        xydf <- xydf[xydf$xd != 0 & xydf$yd != 0 & !is.na(xydf$xd) & !is.na(xydf$yd),]
+        print(xyplot(yd~xd|d,outer=F, col="black", data=xydf, panel=pfun, scales=list(log="e",relation="sliced",draw=FALSE), layout=c(dims(x@index)$age-1,dims(x@index)$age-1), xlab="log index", ylab="log index", skip=as.numeric(skip), main=x@name))
+      }
+      plotts <- function(x, ...) {
+        dps <- as.data.frame(sweep(x@index,1,apply(x@index,  1,mean,na.rm=T),"/"))
+        dps$year <- as.numeric(as.character(dps$year))
+        dps$age <- as.factor(dps$age)
+        print(xyplot(data~year|age,outer=T, type="b", data=dps, scales=list(relation="sliced",draw=TRUE),lty=(5:1),lwd=1.5, ylab="standardised index", ...))
+      }
+
+      # The body of the plot method
+      validObject(x)
+	    type <- type[1]
+	    
+	    res <- switch(type,
+	      "splom" = plotinternal(x=x, ... ),
+	      "ts" = plotts(x=x, ... ),
+        cat("type must be 'splom' or 'ts' !\n"))
+	    # Return result invisibly
+	    invisible(res)
+
+    }
+)	# }}}
+

@@ -2,15 +2,15 @@
 
 # Author: Iago Mosqueira, AZTI Tecnalia
 # Additions:
-# Last Change: 20 Dec 2005 00:05
-# $Id: FLAccesors.R,v 1.1.2.2 2005/12/20 08:16:00 iagoazti Exp $
+# Last Change: 28 feb 2006 17:41
+# $Id: FLAccesors.R,v 1.1.2.3 2006/03/13 12:12:14 iagoazti Exp $
 
 # Reference:
 # Notes:
 
 # TODO Mér 14 Dec 2005 16:01:45 GMT iagoazti: Improve exclusion method
 
-## createFLAccesors
+## createFLAccesors		{{{
 createFLAccesors <- function(object, exclude=character(1)) {
 
 	slots <- getSlots(class(object))[!names(getSlots(class(object)))%in%exclude]
@@ -49,4 +49,4 @@ createFLAccesors <- function(object, exclude=character(1)) {
 		)
 	}
 	return(defined)
-}
+}	# }}}

@@ -1,4 +1,4 @@
 .onLoad <- function(lib,pkg) {
 	require(methods)
-	cat("FLCore 1.1.0 - \"The Hairy Release\" \n")
+	cat("FLCore 1.3-0 - \"The Dutch Hamster Redux\" \n")
 }

@@ -60,7 +60,7 @@
     \item{\code{params}:}{ a matrix containing the parameters of the SR relationship.}
     \item{\code{se}:}{ a numeric vector containing the standard error of the SR parameters.}
     \item{\code{covar}:}{ the covariance matrix of the SR parameters.}
-    \item{\code{var}:}{ the residual variance.}
+    \item{\code{var}:}{ the variance of log-residuals.}
     \item{\code{vara}:}{ the residual variance after auto-correlation has been taken out.}
     \item{\code{aic}:}{ the Akaike Information Criterion index.}
     \item{\code{mcmc}:}{ a list with all the MCMC information required for the Bayesian runs.} 

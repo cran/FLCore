@@ -1,9 +1,10 @@
 # FLStocks.R - FLStocks class and methods
 
-# Author: Phillipe Grosjean, Laurence T. Kell.
+# Author: FLR Team
+# Maintainer: Rob Scott, CEFAS
 # Additions:
-# Last Change: 15 Dec 2005 11:37
-# $Id: FLStocks.R,v 1.5.2.1 2005/12/19 11:22:23 iagoazti Exp $
+# Last Change: 26 mar 2006 18:18
+# $Id: FLStocks.R,v 1.5.2.2 2006/03/28 07:19:58 iagoazti Exp $
 
 # Reference:
 # Notes:

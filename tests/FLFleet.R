@@ -2,8 +2,8 @@
 
 # Author: Iago Mosqueira, AZTI Fundazioa
 # Additions:
-# Last Change: 21 Xuñ 2005 11:36
-# $Id: FLFleet.R,v 1.6.2.1 2005/12/19 11:23:49 iagoazti Exp $
+# Last Change: 26 mar 2006 19:21
+# $Id: FLFleet.R,v 1.6.2.2 2006/03/28 07:19:58 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -15,22 +15,26 @@ catch <- FLQuant(NA, dimnames=list(age=as.character(1:12), year=as.character(c(1
           unit="all", season="all", area="all"))
 fleet <- FLQuant(NA, dimnames=list(quant="all", year=as.character(c(1991:2000)),
           unit="all", season="all", area="all"))
-my.fleet <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch, catchname="examplecatch",desc="Just an examplefleet")
+my.fleet <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch,
+    catchname="examplecatch",desc="Just an examplefleet")
 
 
 #create two catch fleet of two species and 1 gears
-my.fleet2 <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch, catchname=c("examplecatch1","examplecatch2"), 
-catchstock=c("stock1","stock2"), catchgears="gear1" )
+my.fleet2 <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch,
+    catchname=c("examplecatch1","examplecatch2"),
+    catchstock=c("stock1","stock2"), catchgears="gear1" )
 
 
 #create two catch fleet of 1 species and 2 gears
-my.fleet3 <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch, catchname=c("examplecatch1","examplecatch2"), 
-catchstock=("stock1"), catchgears=c("gear1","gear2"))
+my.fleet3 <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch,
+    catchname=c("examplecatch1","examplecatch2"), 
+    catchstock=("stock1"), catchgears=c("gear1","gear2"))
 
 
 #create four catch fleet of 2 species and 2 gears
-my.fleet4 <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch, catchname=as.character(1:4), 
-catchstock=c("stock1", "stock2", "stock1", "stock2"), catchgears=c("gear1","gear1","gear2","gear2"))
+my.fleet4 <- FLFleet(iniFLQuantFleet=fleet, iniFLQuantCatch=catch,
+    catchname=as.character(1:4), catchstock=c("stock1", "stock2", "stock1", "stock2"),     
+    catchgears=c("gear1","gear1","gear2","gear2"))
 
 #as.FLStock
 stock1 <- as.FLStock(my.fleet4, name="3", gear="gear2")

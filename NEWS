@@ -1,26 +1,34 @@
 
-		CHANGES IN FLCore VERSION 1.0.7
+		CHANGES IN FLCore VERSION 1.2
 
 NEW FEATURES
-	o  New function createFLAccesors to create atuomatically accesor and replacement methods
-	   for complex objects.
+
+	o	New dimSums function to collapse an FLQuant along the 3rd to 5th dimension.
+    o   as.data.frame() now defined for FLQuants. Elements in the list must have
+        the same dimensions, and they can be bound either by row or column by using
+        row.names="col" (the default) or row.names="row".
 
 USER-VISIBLE CHANGES
-    o	FLIndex
-		- Completely changed
 
+    o   FLQuant
+        - FLQuant(FLQuant) now accepts for different dimnames to be specified. If
+        those extend the input object dimensions, output is an extended FLQuant with
+        NAs in the extended dimensions.
+	o	FLStock
+		- Added FLStock accesor functions
+		- catch(), landings() and discards() have been changed to computeCatch(),
+		  computeLandings() and computeDiscards().
+		- added ssbpurec method.
+    o   FLCatch
+        - Added FLCatch accesor functions.
+    o   FLFLeet
 
 BUG FIXES
 
+    o	FLIndex
+		- FLIndex() creator now works correctly for derived classes.
     o	FLQuant
-    o	FLStock
-    o	FLSR
-		- sr() no correctly returns estimated parameter values after @params
-		  was changed to a matrix.
-    o	FLFleet
-    o	FLBiol
-	o   io.FLIndex
-		- read.FLIndices() for VPA type files now returns a valid FLIndices object.
+		- bubbles plot fixed.
 
 UTILITIES
 DOCUMENTATION

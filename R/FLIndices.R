@@ -1,9 +1,10 @@
 # FLIndices.R - FLIndices class and methods
 
 # Author: FLR Team
+# Maintainer: Richard Hillary, Imperial College London
 # Additions:
-# Last Change: 15 Dec 2005 11:38
-# $Id: FLIndices.R,v 1.3.2.1 2005/12/19 11:22:22 iagoazti Exp $
+# Last Change: 26 mar 2006 18:16
+# $Id: FLIndices.R,v 1.3.2.6 2006/03/29 14:21:19 janjaappoos Exp $
 
 # Reference:
 # Notes:
@@ -15,7 +16,7 @@ validFLIndices <- function(object){
 	    return(TRUE)
         # Make sure the list contains only FLIndex items
 	    for (i in 1:length(object))
-		    if (!inherits(object[[i]], "FLIndex"))
+		    if (!is.FLIndex(object[[i]]))
 			    return("Items must be FLIndex objects!")
 		    res <- validObject(object[[i]])
 		    if (!res)
@@ -51,15 +52,15 @@ FLIndices <- function(..., desc) {
 	    Indexs <- Indexs[[1]]
     if (length(Indexs) > 0)
 	    for (i in 1:length(Indexs))
-		    if (!inherits(Indexs[[i]], "FLIndex"))
+		    if (!is(Indexs[[i]], "FLIndex"))
 			    stop("Variables provided in ... must all be FLIndex objects!")
     return(new("FLIndices", Indexs, desc=desc))
 }
 
-## is.FLCPUes
+## is.FLIndices
 # Test if an object is of FLIndices class
 is.FLIndices <- function(x)
-    return(inherits(x, "FLIndices"))
+    return(is(x, "FLIndices"))
 
 ## summary
 setMethod("summary", signature(object="FLIndices"),
@@ -91,4 +92,26 @@ setMethod("window", signature(x="FLIndices"),
 		return(x)
 	}
 )
+
+## plot (make specific plots to display units graphically)  {{{
+setMethod("plot", signature(x="FLIndices", y="missing"),
+	function(x, ylab="standardised index", ...){
+    dps <- NULL
+    res <- list()
+    for(i in 1:length(x)){
+      res[[i]] <- sweep(x[[i]]@index,1,apply(x[[i]]@index,  1,mean,na.rm=T),"/")
+      d <- x[[i]]@name[[1]]
+      dpsd <- cbind(as.data.frame(res[[i]]),d)
+      dps <- rbind(dps, as.data.frame(dpsd))
+    }
+    dps$year <- as.numeric(as.character(dps$year))
+    dps$age <- as.factor(dps$age)
+    print(xyplot(data~year|age,outer=T, group=dps$d, type="b", data=dps,
+      key = list(columns=length(levels(dps$d)),text=list(levels(dps$d)), col="black",
+      points=Rows(trellis.par.get("superpose.symbol"),1:length(levels(dps$d)))),
+      scales=list(relation="sliced",draw=TRUE),lty=(5:1),lwd=1.5,
+      ylab=ylab, ...))
+	}
+)	# }}}
+
 

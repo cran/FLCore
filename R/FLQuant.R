@@ -1,9 +1,10 @@
 # FLQuant.R - FLQuant class and methods
 
 # Author: FLR Team
+# Maintainer: Iago Mosqueira, AZTI Tecnalia
 # Additions:
-# Last Change: 19 Dec 2005 13:24
-# $Id: FLQuant.R,v 1.52.2.14 2005/12/20 08:16:00 iagoazti Exp $
+# Last Change: 03 abr 2006 12:45
+# $Id: FLQuant.R,v 1.52.2.30 2006/04/06 18:57:36 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -37,7 +38,7 @@ validFLQuant  <-  function(object){
 setClass("FLQuant",
 	representation("array", units="character"),
 	prototype(array(NA, dim=c(1,1,1,1,1),
-        dimnames=list("0", year="0", unit="unique", season="all", area="unique")),
+        dimnames=list(quant="all", year="1", unit="unique", season="all", area="unique")),
         units="NA"),
 	validity=validFLQuant
 )
@@ -55,6 +56,7 @@ if (!isGeneric("FLQuant")) {
 }   # }}}
 
 # FLQuant(missing)		{{{
+# FLQuant  <- FLQuant()
 setMethod("FLQuant", signature(object="missing"),
 	function(object, dim=rep(1,5), dimnames="missing", quant=NULL, units="NA") {
 		
@@ -68,7 +70,7 @@ setMethod("FLQuant", signature(object="missing"),
 		else if (missing(dim)) {
 			dimnames <- filldimnames(dimnames)
 			dim <- as.numeric(sapply(dimnames, length))
-			quant <- names(dimnames)[1]
+#			quant <- names(dimnames)[1]
 		}
 
 		# dimnames missing
@@ -96,20 +98,21 @@ setMethod("FLQuant", signature(object="missing"),
 )	# }}}
 
 # FLQuant(vector)		{{{
+# FLQuant  <- FLQuant(vector)
 setMethod("FLQuant", signature(object="vector"),
 	function(object, dim=rep(1,5), dimnames="missing", quant=NULL, units="NA") {
 		
 		# no dim or dimnames
 		if (missing(dim) && missing(dimnames)) {
 			dim <- c(1,length(object),1,1,1)
-			dimnames <- list(quant='all', year=1:length(object), unit='unique', season='all', area='unique')
+			dimnames <- list(quant='all', year=1:length(object), unit='unique',
+                season='all', area='unique')
 		}
 
 		# dim missing
 		else if (missing(dim)) {
 			dimnames <- filldimnames(dimnames)
 			dim <- as.numeric(sapply(dimnames, length))
-			quant <- names(dimnames)[1]
 		}
 
 		# dimnames missing
@@ -137,6 +140,7 @@ setMethod("FLQuant", signature(object="vector"),
 )	# }}}
 
 # FLQuant(array)		{{{
+# FLQuant <- FLQuant(array)
 setMethod("FLQuant", signature(object="array"),
 	function(object, dim=rep(1,5), dimnames="missing", quant=NULL, units="NA") {
 
@@ -161,7 +165,8 @@ setMethod("FLQuant", signature(object="array"),
 		else if (missing(dim)) {
 			dimnames <- filldimnames(dimnames, dim=c(dim(object), rep(1,5))[1:5])
 			# extract dim from dimnames
-			dim <- c(dim(object), as.numeric(sapply(dimnames, length))[length(dim(object))+1:5])[1:5]
+			dim <- c(dim(object),
+                as.numeric(sapply(dimnames, length))[length(dim(object))+1:5])[1:5]
 		}
 
 		# dimnames missing
@@ -183,22 +188,37 @@ setMethod("FLQuant", signature(object="array"),
 )	# }}}
 
 # FLQuant(matrix)		{{{
+# FLQuant <- FLQuant(matrix)
 setMethod("FLQuant", signature(object="matrix"),
 	function(object, dim="missing", ...) {
 		if(missing(dim))
-			dim <- c(nrow(object), ncol(object), rep(1,4))
+			dim <- c(nrow(object), ncol(object), rep(1,4))[1:5]
 		return(FLQuant(array(object, dim=dim), ...))
 	}
 )	# }}}
 
 # FLQuant(FLQuant)		{{{
+# FLQuant <- FLQuant(FLQuant)
 setMethod("FLQuant", signature(object="FLQuant"),
-	function(object, quant="quant", units="NA") {
-		
-		quant <- if(!missing(quant)){quant} else {quant(object)}
-		units <- if(!missing(units)){units} else {units(object)}
+	function(object, quant="quant", units="NA", dimnames=list()) {
 
-		return(FLQuant(NA, dim=dim(object), dimnames=dimnames(object), units=units, quant=quant))
+        # generate dimnames
+        dnames <- dimnames(object)
+        dnames[names(dimnames)] <- dimnames
+        
+        # create empty FLQuant
+        res <- FLQuant(dimnames=dnames)
+		quant(res) <- if(!missing(quant)){quant} else {quant(object)}
+		units(res) <- if(!missing(units)){units} else {units(object)}
+        
+        # assign existing data
+        if(all(dnames[[1]]%in%dimnames(object)[[1]]))
+            qnames <- dimnames(object)[[1]]
+        else
+            qnames <- 1:length(dimnames(object)[[1]])
+        res[qnames,dimnames(object)[[2]],1:length(dimnames(object)[[3]]),1:length(dimnames(object)[[4]]),1:length(dimnames(object)[[5]])] <- object
+        # listo!
+		return(res)
 	}
 )		# }}}
 
@@ -388,7 +408,7 @@ if (!isGeneric("units<-")) {
 	})
 }
 
-setMethod("units<-", signature(object="FLQuant"),
+setMethod("units<-", signature(object="FLQuant", value="character"),
 	function(object, value) {
 		if (!inherits(object, "FLQuant"))
 			return(object)
@@ -459,10 +479,10 @@ setMethod("dims", signature(obj="FLQuant"),
 
 ## is.FLQuant       {{{
 is.FLQuant  <-  function(x)
-	return(inherits(x, "FLQuant"))
+	return(is(x, "FLQuant"))
 # }}}
 
-## show (a replacement for print of S3 classes)	{{{
+## show 	{{{
 setMethod("show", signature(object="FLQuant"),
 	function(object){
 		cat("An object of class \"FLQuant\":\n\n")
@@ -500,8 +520,9 @@ setMethod("plot", signature(x="FLQuant", y="missing"),
 			# set strip to show conditioning dimensions names
 			strip <- strip.custom(var.name=condnames, strip.names=c(TRUE,TRUE))
 
-			xyplot(formula, data=x, groups=subset(as.data.frame(x), select=quant(x))[,1], xlab=xlab,
-				ylab=ylab, strip=strip, key = simpleKey(levels(subset(as.data.frame(x), select=quant(x))[,1]),
+			xyplot(formula, data=x, groups=subset(as.data.frame(x), select=quant(x))[,1],
+				xlab=xlab, ylab=ylab, strip=strip,
+				key = simpleKey(levels(subset(as.data.frame(x), select=quant(x))[,1]),
 				space = "right"), type=type, ...)
 		}
 		else {
@@ -514,7 +535,17 @@ setMethod("plot", signature(x="FLQuant", y="missing"),
 			# set strip to show conditioning dimensions names
 			strip <- strip.custom(var.name=condnames, strip.names=c(TRUE,TRUE))
 
-			barchart(formula, data=x, xlab=xlab, ylab=ylab, strip=strip, ...)
+	# using do.call to avoid eval of some arguments
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- x
+	lst$x <- formula
+	lst$xlab <- xlab
+	lst$ylab <- ylab
+	lst$strip <- strip
+	
+	do.call("xyplot", lst)
+
 		}
 	}
 )   # }}}
@@ -526,31 +557,12 @@ if (!isGeneric("xyplot")) {
 	setGeneric("xyplot", useAsDefault = xyplot)
 }
 
-setMethod("xyplot", signature("formula"), function(x, ...){
-
-	dots <- list(...)
-	if(is(dots$data, "FLQuant") | is(dots$data, "FLCohort")) dots$data <- as.data.frame(dots$data)
-	if(class(dots$data)=="FLQuants"){
-		fac <- as.data.frame(dots$data[[1]])[-6]
-		lst <- lapply(dots$data, as.data.frame)
-		lst <- lapply(lst, function(y) y$data)
-#		lnames <- paste("v", 1:length(lst), sep="")
-		lnames <- names(dots$data)
-		names(lst) <- lnames
-		df <- do.call("cbind", lst)
-		data <- cbind(fac,df)
-		dots$data <- data
-		lform <- strsplit(lnames, split=" ")
-		lform$sep <- "+"
-		lform <- do.call("paste", lform)
-		rform <- as.list(x)[[3]]
-		x <- as.formula(paste(lform, deparse(rform), sep="~"))
-	}
-	call.list <- c(x = x, dots)
-	xyplot <- lattice::xyplot
-	ans <- do.call("xyplot", call.list)
-	ans
-
+setMethod("xyplot", signature("formula", "FLQuant"), function(x, data, ...){
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- as.data.frame(data)
+	lst$x <- x
+	do.call("xyplot", lst)
 })
 
 # bwplot
@@ -559,16 +571,12 @@ if (!isGeneric("bwplot")) {
 }
 
 
-setMethod("bwplot", signature("formula"), function(x, ...){
-
-	dots <- list(...)
-	if(is(dots$data, "FLQuant") | is(dots$data, "FLCohort")) dots$data <- as.data.frame(dots$data)
-	call.list <- c(x = x, dots)
-	bwplot <- lattice::bwplot
-	ans <- do.call("bwplot", call.list)
-	ans$call <- match.call()
-	ans
-
+setMethod("bwplot", signature("formula", "FLQuant"), function(x, data, ...){
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- as.data.frame(data)
+	lst$x <- x
+	do.call("bwplot", lst)
 })
 
 # dotplot
@@ -577,15 +585,13 @@ if (!isGeneric("dotplot")) {
 }
 
 
-setMethod("dotplot", signature("formula"), function(x, ...){
+setMethod("dotplot", signature("formula", "FLQuant"), function(x, data, ...){
 
-	dots <- list(...)
-	if(is(dots$data, "FLQuant") | is(dots$data, "FLCohort")) dots$data <- as.data.frame(dots$data)
-	call.list <- c(x = x, dots)
-	dotplot <- lattice::dotplot
-	ans <- do.call("dotplot", call.list)
-	ans$call <- match.call()
-	ans
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- as.data.frame(data)
+	lst$x <- x
+	do.call("dotplot", lst)
 
 })
 
@@ -595,15 +601,13 @@ if (!isGeneric("barchart")) {
 }
 
 
-setMethod("barchart", signature("formula"), function(x, ...){
+setMethod("barchart", signature("formula", "FLQuant"), function(x, data, ...){
 
-	dots <- list(...)
-	if(is(dots$data, "FLQuant") | is(dots$data, "FLCohort")) dots$data <- as.data.frame(dots$data)
-	call.list <- c(x = x, dots)
-	barchart <- lattice::barchart
-	ans <- do.call("barchart", call.list)
-	ans$call <- match.call()
-	ans
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- as.data.frame(data)
+	lst$x <- x
+	do.call("barchart", lst)
 
 })
 
@@ -613,15 +617,13 @@ if (!isGeneric("stripplot")) {
 }
 
 
-setMethod("stripplot", signature("formula"), function(x, ...){
+setMethod("stripplot", signature("formula", "FLQuant"), function(x, data, ...){
 
-	dots <- list(...)
-	if(is(dots$data, "FLQuant") | is(dots$data, "FLCohort")) dots$data <- as.data.frame(dots$data)
-	call.list <- c(x = x, dots)
-	stripplot <- lattice::stripplot
-	ans <- do.call("stripplot", call.list)
-	ans$call <- match.call()
-	ans
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- as.data.frame(data)
+	lst$x <- x
+	do.call("stripplot", lst)
 
 })
 
@@ -631,38 +633,37 @@ if (!isGeneric("histogram")) {
 }
 
 
-setMethod("histogram", signature("formula"), function(x, ...){
+setMethod("histogram", signature("formula", "FLQuant"), function(x, data, ...){
 
-	dots <- list(...)
-	if(is(dots$data, "FLQuant") | is(dots$data, "FLCohort")) dots$data <- as.data.frame(dots$data)
-	call.list <- c(x = x, dots)
-	histogram <- lattice::histogram
-	ans <- do.call("histogram", call.list)
-	ans$call <- match.call()
-	ans
+	lst <- substitute(list(...))
+	lst <- as.list(lst)[-1]
+    lst$data <- as.data.frame(data)
+	lst$x <- x
+	do.call("histogram", lst)
 
 })
 
 # bubbles
 setGeneric("bubbles", function(x, data, ...){
-	standardGeneric("bubbles")
-	}
+    standardGeneric("bubbles")
+    }
 )
-
-setMethod("bubbles", signature(x="formula", data ="FLQuant"), function(x, data, bub.scale=2.5, ...){
-
-	dots <- list(...)
-	data <- as.data.frame(data)
-	dots$data <- data
-	dots$cex <- bub.scale*data$data/max(data$data)+0.1
-	call.list <- c(x = x, dots)
-	xyplot <- lattice::xyplot
-	ans <- do.call("xyplot", call.list)
-	ans$call <- match.call()
-	ans
+setMethod("bubbles", signature(x="formula", data ="FLQuant"),
+function(x, data, bub.scale=2.5, ...){
+    dots <- list(...)
+    data <- as.data.frame(data)
+    dots$data <- data
+    dots$cex <- bub.scale*(data$data/max(data$data, na.rm=T))
+    pfun <- function(x, y, ..., cex, subscripts){
+        panel.xyplot(x, y, ..., cex = cex[subscripts])
+        }
+    call.list <- c(x = x, dots, panel=pfun)
+    xyplot <- lattice::xyplot
+    ans <- do.call("xyplot", call.list)
+    ans$call <- match.call()
+    ans
 
 })
-
 # }}}
 
 ## "["             {{{
@@ -671,7 +672,8 @@ setMethod("[", signature(x="FLQuant"),
 		..., drop="missing") {
 
 		if (missing(i))
-			i  <-  dimnames(x@.Data)[1][[1]]
+			#i  <-  dimnames(x@.Data)[1][[1]]
+			i  <-  seq(1, length(dimnames(x@.Data)[1][[1]]))
 		if (missing(j))
 			j  <-  dimnames(x@.Data)[2][[1]]
    		if (missing(k))
@@ -735,11 +737,16 @@ if (!isGeneric("as.data.frame")) {
 
 setMethod("as.data.frame", signature(x="FLQuant", row.names="missing", optional="missing"),
 	function(x, row.names, optional){
-		df <- data.frame(expand.grid(quant=dimnames(x)[[1]],
+        if(any(is.na(suppressWarnings(as.numeric(dimnames(x)[[1]])))))
+            quant <- as.factor(dimnames(x)[[1]])
+        else
+            quant <- as.numeric(dimnames(x)[[1]])
+
+		df <- data.frame(expand.grid(quant=quant,
 			year=as.numeric(dimnames(x)[[2]]),
-			unit=dimnames(x)[[3]],
-			season=dimnames(x)[[4]],
-			area=dimnames(x)[[5]]),
+			unit=as.factor(dimnames(x)[[3]]),
+			season=as.factor(dimnames(x)[[4]]),
+			area=as.factor(dimnames(x)[[5]])),
 			data=as.vector(x))
 		names(df)[1] <- quant(x)
 		return(df)
@@ -781,12 +788,8 @@ setMethod("apply", signature(X="FLQuant"),
 
 ## window           {{{
 if (!isGeneric("window")) {
-	setGeneric("window", function(x, ...){
-		value  <-  standardGeneric("window")
-		value
-	})
+	setGeneric("window", useAsDefault = window)
 }
-
 setMethod("window", signature="FLQuant",
 	function(x, start, end, extend=TRUE, frequency=1) {
 
@@ -817,54 +820,50 @@ setMethod("window", signature="FLQuant",
 
 ## trim		{{{
 if (!isGeneric("trim")) {
-	setGeneric("trim", function(obj, ...){
+	setGeneric("trim", function(object, ...){
 		standardGeneric("trim")
 		}
 	)
 }
 
-setMethod("trim", signature("FLQuant", "ANY"), function(obj, ...){
+setMethod("trim", signature("FLQuant"), function(object, ...){
 
 	args <- list(...)
 
-	c1 <- args[[quant(obj)]]
+	c1 <- args[[quant(object)]]
 	c2 <- args[["year"]]
 	c3 <- args[["unit"]]
 	c4 <- args[["season"]]
 	c5 <- args[["area"]]
 
 	# check if the criteria is not larger then the object
-
 	v <- c(length(c1), length(c2), length(c3), length(c4), length(c5))
-	if(sum(v > dim(obj))!=0){
+	if(sum(v > dim(object))!=0){
 		stop("\n  Your criteria are wider then the object dim. I don't know what to do !\n")
 	}
 
 	if(!is.null(c1)){
-		v1 <- dimnames(obj)[[1]] %in% c1
-		obj <- obj[v1,,,,, drop=FALSE]
+		v1 <- dimnames(object)[[1]] %in% c1
+		object <- object[v1,,,,, drop=FALSE]
 		}
 	if(!is.null(c2)){
-		v2 <- dimnames(obj)[[2]] %in% c2
-		obj <- obj[,v2,,,, drop=FALSE]
+		v2 <- dimnames(object)[[2]] %in% c2
+		object <- object[,v2,,,, drop=FALSE]
 		}
 	if(!is.null(c3)){
-		v3 <- dimnames(obj)[[3]] %in% c3
-		obj <- obj[,,v3,,, drop=FALSE]
+		v3 <- dimnames(object)[[3]] %in% c3
+		object <- object[,,v3,,, drop=FALSE]
 		}
 	if(!is.null(c4)){
-		v4 <- dimnames(obj)[[4]] %in% c4
-		obj <- obj[,,,v4,, drop=FALSE]
+		v4 <- dimnames(object)[[4]] %in% c4
+		object <- object[,,,v4,, drop=FALSE]
 		}
 	if(!is.null(c5)){
-		v5 <- dimnames(obj)[[5]] %in% c5
-		obj <- obj[,,,,v5, drop=FALSE]
+		v5 <- dimnames(object)[[5]] %in% c5
+		object <- object[,,,,v5, drop=FALSE]
 		}
-	return(obj)
+	return(object)
 })	# }}}
-
-## subset
-## aggregate
 
 ## Sums         {{{
 quantTotals <- function(x) {
@@ -901,6 +900,10 @@ seasonSums <- function(x, na.rm=TRUE) {
 
 areaSums <- function(x, na.rm=TRUE) {
 	return(apply(x, c(1:4), sum, na.rm=na.rm))
+}
+
+dimSums <- function(x, na.rm=TRUE) {
+	return(apply(x, c(1:2), sum, na.rm=na.rm))
 }
 
 quantMeans <- function(x, na.rm=TRUE) {

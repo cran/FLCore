@@ -1,9 +1,10 @@
 # FLStock.R - FLStock class and methods
 
 # Author: FLR Team
+# Maintainer: Rob Scott, CEFAS
 # Additions:
-# Last Change: 19 Dec 2005 13:12
-# $Id: FLStock.R,v 1.42.2.3 2005/12/20 08:16:00 iagoazti Exp $
+# Last Change: 26 mar 2006 18:15
+# $Id: FLStock.R,v 1.42.2.25 2006/03/28 07:19:58 iagoazti Exp $
 
 # Reference:
 # Notes:
@@ -14,8 +15,9 @@ validFLStock <- function(object) {
 	## FLQuant objects that must have same dimensions
 	dim <- dim(object@catch.n)
 
-	s <- list("catch.n", "catch.wt", "discards.n", "discards.wt", "landings.n", "landings.wt",
-		"stock.n", "stock.wt", "m", "mat", "harvest", "harvest.spwn", "m.spwn")
+	s <- list("catch.n", "catch.wt", "discards.n", "discards.wt", "landings.n",
+		"landings.wt", "stock.n", "stock.wt", "m", "mat", "harvest", "harvest.spwn",
+		"m.spwn")
 	for (i in s) {
 		# dim
 		if (is.FLQuant(slot(object, i)) & !all(dim(slot(object, i)) == dim))
@@ -85,228 +87,154 @@ setClass("FLStock",
 	m.spwn	    ="FLQuant"
 	),
 	prototype=prototype(
-		name	=character(0),
-		desc	=character(0),
-		range	=unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0)),
-		catch	=FLQuant(array(NA, dim=c(1,1,1,1,1),
-			dimnames=list('all', year=0, unit='unique', season='all', area='unique'))),
-		catch.n	=FLQuant(),
-		catch.wt=FLQuant(),
-		discards=FLQuant(array(NA, dim=c(1,1,1,1,1),
-			dimnames=list('all', year=0, unit='unique', season='all', area='unique'))),
-		discards.n =FLQuant(),
-		discards.wt=FLQuant(),
-		landings   =FLQuant(array(NA, dim=c(1,1,1,1,1),
-			dimnames=list('all', year=0, unit='unique', season='all', area='unique'))),
-		landings.n =FLQuant(),
-		landings.wt=FLQuant(),
-		stock	   =FLQuant(array(NA, dim=c(1,1,1,1,1),
-			dimnames=list('all', year=0, unit='unique', season='all', area='unique'))),
-		stock.n	 =FLQuant(),
-		stock.wt =FLQuant(),
-		m		 =FLQuant(),
-		mat		 =FLQuant(),
-		harvest	 =FLQuant(units="f"),
-		harvest.spwn=FLQuant(),
-		m.spwn	 =FLQuant()
-	),
-  validity=validFLStock
-)	# }}}
-
+		name	= character(0),
+		desc	= character(0),
+		range	= unlist(list(min=0, max=0, plusgroup=NA, minyear=0, maxyear=0)),
+		catch	= FLQuant(),
+		catch.n	= FLQuant(),
+		catch.wt= FLQuant(),
+		discards= FLQuant(),
+		discards.n = FLQuant(),
+		discards.wt= FLQuant(),
+		landings   = FLQuant(),
+		landings.n = FLQuant(),
+		landings.wt= FLQuant(),
+		stock	   = FLQuant(),
+		stock.n	 = FLQuant(),
+		stock.wt = FLQuant(),
+		m		 = FLQuant(),
+		mat		 = FLQuant(),
+		harvest	 = FLQuant(units="f"),
+		harvest.spwn = FLQuant(),
+		m.spwn	 = FLQuant()
+	)#,
+#  validity=validFLStock
+)
 setValidity("FLStock", validFLStock)
 remove(validFLStock)
 
+invisible(createFLAccesors(new("FLStock"), exclude=c('range', 'harvest', 'name')))	# }}}
 
-## Methods :: FLStock() 
+## FLStock() 	{{{
+FLStock <- function(name=character(0), desc=character(0), plusgroup=NA, quant='quant', ...){
 
-FLStock <- function(name, desc, iniFLQuant, quant = "missing"){
-	if (missing(name))
-		name <- character(0)
-	if (missing(desc))
-		desc <- character(0)
-	if (missing(iniFLQuant))
-		iniFLQuant <- FLQuant()
-	
-	# Initialize FLQuant slots; dim, dimnames as iniFLQuant
-	if (!inherits(iniFLQuant, "FLQuant"))
-		stop("iniFLQuant must be an FLQuant object")
-	# Template FLQuant for age-structured slots
-		mat <- iniFLQuant
-		mat[,,,,] <- NA
-	# Template for quant-aggregated FLQuants
-	names <- dimnames(mat)
-	agr <- FLQuant(array(NA, dim=c(1,dim(mat)[2:5]), dimnames=list('all',
-		year=names[[2]], unit=names[[3]], season=names[[4]], area=names[[5]])))
-	quant(agr) <- quant(mat)
-	Par <- dims(iniFLQuant)
+	args <- list(...)
 
-	return(new("FLStock",
+	if(length(args)==0)
+		args <- list(catch.n=FLQuant())
+
+	# Set FLQuant dimensions
+	dimnames <- dimnames(args[[names(lapply(args, is.FLQuant)==TRUE)[1]]])
+
+	# template FLQuants
+	if (missing(quant))
+		quant <- names(dimnames)[1]
+	iniFLQ <- FLQuant(dimnames=dimnames, quant=quant)
+	agrFLQ <- FLQuant(dimnames=c(quant='all', dimnames(iniFLQ)[-1]), quant=quant)
+
+	dims <- dims(iniFLQ)
+
+	res <- new("FLStock",
 		name		= name,
 		desc		= desc,
-		catch	    = agr,
-		catch.n	    = mat,
-		catch.wt	= mat,
-		discards	= agr,
-		discards.n  = mat,
-		discards.wt = mat,
-		landings	= agr,
-		landings.n  = mat,
-		landings.wt = mat,
-		stock	    = agr,
-		stock.n	    = mat,
-		stock.wt	= mat,
-		mat		    = mat,
-		m		    = mat,
-		harvest	    = mat,
-		harvest.spwn= mat,
-		m.spwn	    = mat,
-		range	    = unlist(list(min=Par$min, max=Par$max,
-			plusgroup=NA, minyear=Par$minyear, maxyear=Par$maxyear)))
-	)
-}
+		catch	    = agrFLQ,
+		catch.n	    = iniFLQ,
+		catch.wt	= iniFLQ,
+		discards	= agrFLQ,
+		discards.n  = iniFLQ,
+		discards.wt = iniFLQ,
+		landings	= agrFLQ,
+		landings.n  = iniFLQ,
+		landings.wt = iniFLQ,
+		stock	    = agrFLQ,
+		stock.n	    = iniFLQ,
+		stock.wt	= iniFLQ,
+		mat		    = iniFLQ,
+		m		    = iniFLQ,
+		harvest	    = iniFLQ,
+		harvest.spwn= iniFLQ,
+		m.spwn	    = iniFLQ,
+		range       = unlist(list(min=dims$min, max=dims$max, plusgroup=plusgroup,
+			minyear=dims$minyear, maxyear=dims$maxyear)))
+	
+	# Load given slots
+	for(i in names(args))
+		if (i != 'iniFLQuant')
+			slot(res, i) <- args[[i]]
 
-# Test if an object is of FLStock class
+	return(res)
+}	# }}}
+
+# is.FLStock	{{{
 is.FLStock <- function(x)
-	return(inherits(x, "FLStock"))
+	return(inherits(x, "FLStock"))	# }}}
 
-## landings
-if (!isGeneric("landings")) {
-	setGeneric("landings", function(object, ...){
-		value <- standardGeneric("landings")
+## computeLandings	{{{
+if (!isGeneric("computeLandings")) {
+	setGeneric("computeLandings", function(object, ...){
+		value <- standardGeneric("computeLandings")
 		value
 	})
 }
+setMethod("computeLandings", signature(object="FLStock"),
+	function(object, na.rm=TRUE) {
+        res <- quantSums(landings.n(object)*landings.wt(object), na.rm=na.rm)
+        units(res) <- paste(units(landings.n(object)), units(landings.wt(object)))
+        return(res)
+ 	} 
+)	# }}}
 
-setMethod("landings", signature(object="FLStock"),
+## computeDiscards	{{{
+if (!isGeneric("computeDiscards")) {
+	setGeneric("computeDiscards", function(object, ...){
+		value <- standardGeneric("computeDiscards")
+		value
+	})
+}
+setMethod("computeDiscards", signature(object="FLStock"),
+	function(object, na.rm=TRUE) {
+        res <- quantSums(discards.n(object)*discards.wt(object), na.rm=na.rm)
+        units(res) <- paste(units(discards.n(object)), units(discards.wt(object)))
+        return(res)
+ 	} 
+)	# }}}
 
-	function(object) {
-
-
-#		if (overwrite || !any(complete.cases(slot(object, "landings")))) {
-        if(!any(complete.cases(slot(object, "landings.n"))))
-            warning("landings.n are needed to estimate total landings")
-        if(!any(complete.cases(slot(object, "landings.wt"))))
-      	    warning("landings.wt are needed to estimate total landings")
-
-        if(all(dim(slot(object, "landings.n")) == dim(slot(object, "landings.n")))) {
-            res <- apply(slot(object, "landings.n")*slot(object, "landings.wt"), 2:5, sum)
-            units(res) <- units(slot(object, "landings.wt"))
-    				quant(res) <- quant(slot(object, "landings.wt"))
-            return(res)
+## computeCatch	{{{
+if (!isGeneric("computeCatch")) {
+	setGeneric("computeCatch", function(object, ...){
+		value <- standardGeneric("computeCatch")
+		value
+	})
+}
+setMethod("computeCatch", signature(object="FLStock"),
+    function(object, slot="catch", na.rm=TRUE) {
+        
+        if(slot == "n"){
+		# NA to 0
+        	res <- landings.n(object) + discards.n(object)
+            if (units(discards.n(object)) == units(landings.n(object)))
+				units(res) <- units(discards.n(object))
         }
-        else {
-            warning("dimensions of landings.n and landings.wt are not the same")
-			  }
-  }
-)
-
-
-## discards
-if (!isGeneric("discards")) {
-	setGeneric("discards", function(object, ...){
-		value <- standardGeneric("discards")
-		value
-	})
-}
-
-setMethod("discards", signature(object="FLStock"),
-
-	function(object) {
-
-
-#		if (overwrite || !any(complete.cases(slot(object, "discards")))) {
-        if(!any(complete.cases(slot(object, "discards.n"))))
-            warning("discards.n are needed to estimate total discards")
-        if(!any(complete.cases(slot(object, "discards.wt"))))
-      	    warning("discards.wt are needed to estimate total discards")
-
-        if(all(dim(slot(object, "discards.n")) == dim(slot(object, "discards.n")))) {
-            res <- apply(slot(object, "discards.n")*slot(object, "discards.wt"), 2:5, sum)
-            units(res) <- units(slot(object, "discards.wt"))
-				    quant(res) <- quant(slot(object, "discards.wt"))
-            return(res)
+        else if(slot == "wt"){
+        	res <- (landings.wt(object) * landings.n(object) +
+        		discards.wt(object) * discards.n(object)) /
+        	 	(landings.n(object) + discards.n(object))
+			if (units(discards.wt(object)) == units(landings.wt(object)))
+				units(res) <- units(discards.wt(object))
         }
-        else {
-            warning("dimensions of discards.n and discards.wt are not the same")
-			  }
-  }
-)
-
-## catch
-if (!isGeneric("catch")) {
-	setGeneric("catch", function(object, ...){
-		value <- standardGeneric("catch")
-		value
-	})
-}
-
-setMethod("catch", signature(object="FLStock"),
-
-	function(object, slot="all", overwrite=FALSE) {
-
-		# catch.n
-		if(slot == "n" || slot == "all") {
-        if(!any(complete.cases(slot(object, "landings.n"))))
-            warning("landings.n are needed to estimate catch.n")
-        if(!any(complete.cases(slot(object, "discards.n"))))
-            warning("discards.n are needed to estimate catch.n")
-        res <- slot(object, "landings.n") + slot(object, "discards.n")
-        if(overwrite == TRUE)
-            slot(object, "catch.n") <- res
-    }
-
-		# catch.wt
-		if(slot == "wt" || slot == "all") {
-			if(!any(complete.cases(slot(object, "landings.n"))))
-          warning("landings.n are needed to estimate catch.wt")
-      if(!any(complete.cases(slot(object, "landings.wt"))))
-          warning("landings.wt are needed to estimate catch.wt")
-      if(!any(complete.cases(slot(object, "discards.n"))))
-          warning("discards.n are needed to estimate catch.wt")
-      if(!any(complete.cases(slot(object, "discards.wt"))))
-          warning("discards.wt are needed to estimate catch.wt")
-          
-      res <- (slot(object, "landings.wt") * slot(object, "landings.n") +
-              slot(object, "discards.wt") * slot(object, "discards.n")) /
-              (slot(object, "landings.n") + slot(object, "discards.n"))
-			# units
-			if (units(slot(object, "discards.wt")) == units(slot(object, "landings.wt")))
-				units(res) <- units(slot(object, "discards.wt"))
-      if(overwrite == TRUE)
-          slot(object, "catch.wt") <- res
+		else if (slot == "all"){
+			res <- FLQuants(catch=computeCatch(object, slot="catch"),
+				catch.wt=computeCatch(object, slot="wt"),
+				catch.n=computeCatch(object, slot="n"))
 		}
-			
-		# catch
-		if(slot == 'all') {
-        if(any(is.na(slot(object, "landings.n"))))
-            warning("There are NAs present in landings.n")
-        if(any(is.na(slot(object, "landings.wt"))))
-            warning("There are NAs present in landings.wt")
-        if(any(is.na(slot(object, "discards.n"))))
-            warning("There are NAs present in discards.n")
-        if(any(is.na(slot(object, "discards.wt"))))
-            warning("There are NAs present in discards.wt")
-        res <- landings(object) + discards(object)
-			# units
-			if (units(slot(object, "catch.wt")) != "NA")
-				units(res) <- units(slot(object, "discards.wt"))
-			else if (units(slot(object, "discards.wt")) == units(slot(object, "landings.wt")))
-				units(res) <- units(slot(object, "discards.wt"))
-
-		  # quant
-		  quant(res) <- quant(slot(object, "landings.n"))
-
-      if(overwrite==TRUE) {
-        slot(object, "catch") <- res
-        return(object)
-      }
+        else {
+			res <- quantSums(catch.n(object) * catch.wt(object), na.rm=na.rm)
+        }
+		return(res)
     }
-    return(res)
-	}
-)
+)	# }}}
 
-
-## summary
+## summary		{{{
 setMethod("summary", signature(object="FLStock"),
 	function(object, ...){
 		cat("An object of class \"FLStock\"\n\n")
@@ -316,22 +244,19 @@ setMethod("summary", signature(object="FLStock"),
 		cat("", object@range, "\n", sep="\t")
 		cat("Quant:", quant(object@catch), "\n\n")
 		
-		for (s in list("catch", "catch.n", "catch.wt", "discards", "discards.n",
-					   "discards.wt", "landings", "landings.n", "landings.wt",
-					   "stock", "stock.n", "stock.wt", "harvest",
-					   "harvest.spwn", "m", "m.spwn", "mat")) {
-				 if (sum(!complete.cases(slot(object, s))) == length(slot(object,s)))
+		for (s in names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])) {
+			if (sum(!complete.cases(slot(object, s))) == length(slot(object,s)))
 				cat(substr(paste(s, "          "), start=1, stop=12), " : EMPTY\n") else
 				cat(substr(paste(s, "          "), start=1, stop=12), " : [", dim(slot(object,s)),"], units = ", slot(object,s)@units, "\n")
 		}
 	}
-)
+)	# }}}
 
-## plot (make specific plots to display units graphically)
+## plot (make specific plots to display units graphically)  {{{
 setMethod("plot", signature(x="FLStock", y="missing"),
 	function(x, ...){
 		dots <- list(...)
-		obj <- FLQuants(list(catch=x@catch, landings=x@landings, discards=x@discards))
+		obj <- FLQuants(list(catch=catch(x), landings=landings(x), discards=discards(x)))
 		condnames <- names(dimnames(x@catch)[c(3:5)][dim(x@catch)[c(3:5)]!=1])
 		cond <- paste(condnames, collapse="+")
 		if(cond != "") cond <- paste("|", cond)
@@ -342,26 +267,21 @@ setMethod("plot", signature(x="FLStock", y="missing"),
 		dots$auto.key <- TRUE
 		dots$type <- c("l")	
 		do.call("xyplot", dots)
-#		xyplot(x=formula, data=obj, auto.key=T, type="l", ...)
 	}
-)
+)	# }}}
 
-# Test if an object is of FLStock class
+## is.FLStock	{{{
 is.FLStock <- function(x)
-	return(inherits(x, "FLStock"))
+	return(inherits(x, "FLStock"))	# }}}
 
-
-## window
+## window	{{{
 if (!isGeneric("window")) {
-	setGeneric("window", function(x, ...){
-		value  <-  standardGeneric("window")
-		value
-	})
+	setGeneric("window", useAsDefault = window)
 }
 setMethod("window", signature(x="FLStock"),
 	  function(x, start, end, extend=TRUE, frequency=1) {
 
-names. <- names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])
+		names. <- names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])
 		
 		for (s. in names.) {
 			slot(x, s.) <- window(slot(x, s.), start=start, end=end,
@@ -371,10 +291,9 @@ names. <- names(getSlots(class(x))[getSlots(class(x))=="FLQuant"])
 		}
 		return(x)
 	}
-)
+)	# }}}
 
-
-## setPlusGroup function - Robert Scott
+## setPlusGroup function	{{{
 #  changes the level of the plus group of the stock object
 # Last Change dorleta : 11/04/2005
 
@@ -485,10 +404,9 @@ setPlusGroup <- function(stock, plusgroup="missing") {
 	}
 
 	return(stock)
-}
+}	# }}}
 
-
-## ssb
+## ssb		{{{
 if (!isGeneric("ssb")) {
 	setGeneric("ssb", function(object, ...){
 		value <- standardGeneric("ssb")
@@ -499,82 +417,105 @@ if (!isGeneric("ssb")) {
 setMethod("ssb", signature(object="FLStock"),
 	function(object, ...) {
 
-	if(units(slot(object, "harvest")) != 'f' && units(slot(object, "harvest")) != 'hr')
-		stop("Correct units not specified in the harvest slot")
-	if(units(slot(object, "harvest")) == 'f')
-		return(apply(slot(object, "stock.n") * exp(-harvest(object, "f") *
-        	slot(object,"harvest.spwn")-slot(object, "m")*
-			slot(object, "m.spwn"))*slot(object, "stock.wt")*
-			slot(object, "mat"), 2:5, sum))
-	if(units(slot(object, "harvest")) == 'hr')
-		return(apply(slot(object, "stock.n") * (1 - slot(object, "harvest") * slot(object, "harvest.spwn")) *
-			exp(-slot(object, "m") * slot(object, "m.spwn")) * slot(object, "stock.wt") * slot(object, "mat"), 2:5, sum))	
+	if(units(harvest(object)) == 'f')
+		# 
+		return(quantSums(stock.n(object) * exp(-harvest(object) *
+        	harvest.spwn(object) - m(object) * m.spwn(object)) *
+			stock.wt(object) * mat(object)))
+	else if(units(harvest(object)) == 'hr')
+		return(quantSums(stock.n(object) * (1 - harvest(object) * harvest.spwn(object)) *
+			exp(-m(object) * m.spwn(object)) * stock.wt(object) * mat(object)))	
+	else
+		stop("Correct units (f or hr) not specified in the harvest slot")
 	}
-)
+)	# }}}
 
+## sop	{{{
+sop <- function(stock, slot="catch") {
+	return(quantSums(slot(stock, paste(slot, ".n", sep="")) *
+		slot(stock, paste(slot, ".wt", sep=""))) / slot(stock, slot))
+}	# }}}
 
-## sop
-sop <- function(stock, slot) {
-	return(apply(slot(stock, paste(slot, ".n", sep=""))*slot(stock, paste(slot, ".wt", sep="")), 2:5, sum, na.rm=TRUE)/ slot(stock, slot))
-}
-
-
-## transform(FLStock)
+## transform(FLStock)	{{{
 if (!isGeneric("transform")) {
-	setGeneric("transform", function(x, ...){
+	setGeneric("transform", function(`_data`, ...){
 		value <- standardGeneric("transform")
 		value
 	})
 }
-
-setMethod("transform", signature(x="FLStock"),
-	function(x, ...) {
-
+setMethod("transform", signature(`_data`="FLStock"),
+	function(`_data`, ...) {
 		args <- list(...)
-
 		for (i in 1:length(args)) {
-			slot(x, names(args)[i])[,,,,] <- args[[i]][,,,,]
+			slot(`_data`, names(args)[i]) <- args[[i]]
 		}
-
-		return(x)
+		return(`_data`)
 	}
-)
+)	# }}}
 
-## apply(FLStock)
-setMethod("apply", signature(X="FLStock", MARGIN="list", FUN="function"),
-	function(X, MARGIN, FUN, ...) {
+## apply(FLStock)	{{{
+setMethod("apply", signature(X="FLStock", MARGIN="vector", FUN="function"),
+    function(X, MARGIN, FUN, ...) {
 
-		for(i in 1:length(MARGIN)) {
-			slot(X, MARGIN[[i]]) <- apply(slot(X, MARGIN[[i]]), 1:5, FUN, ...)
-		}
+    names.   <- names(getSlots(class(X))[getSlots(class(X))=="FLQuant"])
+    names.t  <- c("catch",   "landings",   "discards",   "stock")
+    names.n  <- c("catch.n", "landings.n", "discards.n", "stock.n")
+    names.wt <- c("catch.wt","landings.wt","discards.wt","stock.wt")
+    
+    names.avg <- names.[!is.element(names., c(names.t,names.n,names.wt))]
+
+    # weighted averages by stock.n or catch.n
+    wt <- "stock.n"
+    if(is.na(slot(X,"stock.n")))
+      wt <- "catch.n"
+    
+    for(s. in names.avg)
+      slot(X, s.) <- apply(slot(X,s.)*slot(X,wt),MARGIN,FUN, ...)/apply(slot(X,wt),MARGIN,FUN,...)
+    
+    # weighted averages by catch.n, landings.n, discards.n
+    for(i in 1:(length(names.wt)-1))
+      slot(X, names.wt[i]) <- apply(slot(X,names.wt[i])*slot(X,names.n[i]),MARGIN,FUN, ...)/apply(slot(X,names.n[i]),MARGIN,FUN,...)
+
+    # treat stock.wt separately depending on NA or not in stock.n
+    slot(X, "stock.wt") <- apply(slot(X,"stock.wt")*slot(X,wt),MARGIN,FUN, ...)/apply(slot(X,wt),MARGIN,FUN,...)
+    
+    for(s. in c(names.t, names.n))
+			slot(X, s.) <- apply(slot(X, s.), MARGIN, FUN, ...)
+
+    # make changes to range object
+    if(!is.element(1,MARGIN)) {
+      X@range["min"] <- 1
+      X@range["max"] <- 1
+      X@range["plusgroup"] <- NA
+    }
+    if(!is.element(2,MARGIN)) {
+      X@range["minyear"] <- 1
+      X@range["maxyear"] <- 1
+    }
 		return(X)
 	}
-)
+)	# }}}
 
-## as.FLStock
+## as.FLStock	{{{
 if (!isGeneric("as.FLStock")) {
 	setGeneric("as.FLStock", function(object, ...){
 		value <- standardGeneric("as.FLStock")
 		value
 	})
-}
+}	# }}}
 
-## harvest
+## harvest		{{{
 if (!isGeneric("harvest")) {
 	setGeneric("harvest", function(object, ...){
 		value <- standardGeneric("harvest")
 		value
 	})
 }
-
 setMethod("harvest", signature(object="FLStock"),
 	function(object, index="f") {
-
 		if (!missing(index) && units(slot(object, "harvest")) != index)
 			stop("The units of harvest in the object do not match the specified index")
-
 		return(slot(object, "harvest"))
-
 	}
 )
 
@@ -585,12 +526,177 @@ if (!isGeneric("harvest<-")) {
 		value
 	})
 }
-
 setMethod("harvest<-", signature(object="FLStock", value="character"),
 	function(object, value) {
-
-	units(slot(object, "harvest")) <- value
-	return(object)
-
+		units(slot(object, "harvest")) <- value
+		return(object)
 	}
 )
+setMethod("harvest<-", signature(object="FLStock", value="FLQuant"),
+	function(object, value) {
+		slot(object, "harvest") <- value
+		return(object)
+	}
+)	# }}}
+
+## catch<- FLQuants		{{{
+setMethod("catch<-", signature(object="FLStock", value="FLQuants"),
+	function(object, value) {
+		catch(object) <- value[['catch']]
+		catch.n(object) <- value[['catch.n']]
+		catch.wt(object) <- value[['catch.wt']]
+		return(object)
+	}
+)
+
+
+
+## trim
+if (!isGeneric("trim")) {
+	setGeneric("trim", function(object, ...){
+		value <- standardGeneric("trim")
+		value
+	})
+}
+
+setMethod("trim", signature("FLStock"), function(object, ...){
+
+	args <- list(...)
+
+  c1 <- args[[quant(object@stock.n)]]
+	c2 <- args[["year"]]
+	c3 <- args[["unit"]]
+	c4 <- args[["season"]]
+	c5 <- args[["area"]]
+
+  # check if the criteria is not larger than the object
+	v <- c(length(c1), length(c2), length(c3), length(c4), length(c5))
+  if(sum(v > dim(object@stock.n))> 0){
+		stop("\n  Your criteria are wider then the object dim. I don't know what to do !\n")
+	}
+
+	names. <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
+  for (name in names.) {
+    if (dim(slot(object,name))[1]==1 & dim(slot(object,name))[2] > 1 ) {
+      slot(object,name) <- trim(slot(object,name), year=c2, unit=c3, season=c4, area=c5 )
+    } else if (dim(slot(object,name))[1] > 1 ){
+      slot(object,name) <- trim(slot(object,name), age=c1, year=c2, unit=c3, season=c4, area=c5 )
+    }
+  }
+
+  if (length(c1)>0 ) {
+    object@range["min"] <- c1[1]
+    object@range["max"] <- c1[length(c1)]
+    object@range["plusgroup"] <- NA
+  }
+  if (length(c2)>0 ) {
+    object@range["minyear"] <- c2[1]
+    object@range["maxyear"] <- c2[length(c2)]
+  }
+
+	return(object)
+
+}) # }}}
+
+## units(FLStock)	{{{
+if (!isGeneric("units")) {
+	setGeneric("units", function(object, ...){
+		value <- standardGeneric("units")
+		value
+	})
+}
+setMethod("units", signature(object="FLStock"), function(object, ...) {
+	
+	names. <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
+	res <- list()
+	for(s. in names.)
+    res <- as.list(c(unlist(res), assign(s., units(slot(object, s.)))))
+  names(res) <- names.
+  return(res)
+})  #}}}
+
+## units<-(FLStock)  {{{
+setMethod("units<-", signature(object="FLStock", value="list"),
+    function(object, value) {
+        for(i in seq(along=value))
+            if(is.character(value[[i]]))
+                units(slot(object, names(value[i]))) <- value[[i]]
+        return(object)
+	}
+) # }}}
+
+## SSB per unit recruit {{{
+if (!isGeneric("ssbpurec")) {
+	setGeneric("ssbpurec", function(object, ...){
+		value <- standardGeneric("ssbpurec")
+		value
+	})
+}
+
+setMethod("ssbpurec",signature(object="FLStock"),
+	function(object, start = "missing", end = "missing", type = "non-param", recs = "missing", spwns = "missing", plusgroup = TRUE, ...) {
+
+		# checks and chose the range over which we calculate the SSB per unit recruit
+		
+		if((missing(start) && !missing(end)) | (!missing(start) && missing(end))) 
+			stop("Error in ssbpurec: start and end must be supplied together if at all")
+
+		if(missing(start) && missing(end)) 
+			x  <- window(object,dims(object@m)[['minyear']],dims(object@m)[['minyear']])
+
+		if(!missing(start) && !missing(end))
+			x  <- window(object,start,end)
+
+		if(missing(recs)) 
+			recs  <- 1
+		if(missing(spwns)) 
+			spwns  <- 1 				
+
+		ymin  <- dims(x@m)[['minyear']]
+		ymax  <- dims(x@m)[['maxyear']]
+		ns  <- dims(x@m)[['season']]
+		amin  <- dims(x@m)[['min']]
+		amax  <- dims(x@m)[['max']]
+		pg  <- dim(x@m)[1]
+		
+		# if amin = 0 and recs < spwns !!!! cannot happen
+
+		if(amin == 0 && recs < spwns)
+			stop("Error: minimum age is zero and the recruitment occurs before spawning - not possible")
+		
+		if(type == 'non-param') {
+			
+			m  <- yearMeans(slot(x, "m"))
+			mat  <- yearMeans(slot(x, "mat")) 
+			wt  <- yearMeans(slot(x, "stock.wt"))
+			n  <- FLQuant(m)
+			
+			# seasonal or non-seasonal options
+			
+			if(ns == 1) {
+				
+				# standard calculation : recruitment = 1, natural mort. sets the 
+				# age-structure, with or without a plusgroup
+
+				n[1,1,,1,]  <- 1
+				for(a in 2:pg) 
+					n[a,1,,1,]  <- n[a-1,1,,1,] * exp(-m[a-1,1,,1,])
+				if(plusgroup)
+					n[pg,1,,1,]  <- n[pg,1,,1,] / (1-exp(-m[pg,1,,1,]))
+				
+				rho  <- quantSums(n * mat * wt)
+
+				# always set dimnames$year to be the minyear in the stock object
+
+				dimnames(rho)$year  <- dims(object@m)[['minyear']]
+				
+			} else {
+
+				# to come...
+			}
+			
+		}
+
+		return(rho)
+	}
+)# }}}
